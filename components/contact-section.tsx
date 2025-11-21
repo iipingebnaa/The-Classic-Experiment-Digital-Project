@@ -8,7 +8,8 @@ import { CornerDownRightIcon, MapPin, Phone, Mail, Clock } from "lucide-react"
 
 export default function ContactSection() {
   const openGoogleMaps = () => {
-    window.open("https://www.google.com/maps/search/?api=1&query=-22.565256,17.069986", "_blank")
+    window.open("https://www.google.com/maps/search/?api=1&query=-22.565115,17.070159", "_blank")
+
   }
 
 
@@ -25,14 +26,15 @@ export default function ContactSection() {
           <div className="flex flex-col">
             <div className="w-full h-48 sm:h-64 lg:h-96 rounded-lg overflow-hidden shadow-lg mb-3 sm:mb-4">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3652.094976767925!2d17.069986!3d-22.565256!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCsDMzJzU0LjkiUyAxN8KwMDQnMTEuOSJF!5e0!3m2!1sen!2sna!4v1234567890"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
+  src="https://www.google.com/maps?q=-22.565115,17.070159&hl=es;z=17&output=embed"
+  width="100%"
+  height="100%"
+  style={{ border: 0 }}
+  allowFullScreen
+  loading="lazy"
+/>
+
+
             </div>
             <Button
              onClick={openGoogleMaps}
