@@ -28,24 +28,30 @@ export default function Home() {
 
   // PWA Install button logic
   useEffect(() => {
-    const handler = (e: any) => {
-      e.preventDefault()
-      setDeferredPrompt(e)
-      setShowInstallButton(true)
-    }
+  const handler = (e: any) => {
+    e.preventDefault()
+    setDeferredPrompt(e)
+    setShowInstallButton(true)
+  }
 
-    const appInstalledHandler = () => {
-      setShowInstallButton(false)
-    }
+  const appInstalledHandler = () => {
+    setShowInstallButton(false)
+  }
 
-    window.addEventListener("beforeinstallprompt", handler)
-    window.addEventListener("appinstalled", appInstalledHandler)
+  window.addEventListener("beforeinstallprompt", handler)
+  window.addEventListener("appinstalled", appInstalledHandler)
 
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handler)
-      window.removeEventListener("appinstalled", appInstalledHandler)
-    }
-  }, [])
+  // Force show in dev for testing
+  if (process.env.NODE_ENV === "development") {
+    setShowInstallButton(true)
+  }
+
+  return () => {
+    window.removeEventListener("beforeinstallprompt", handler)
+    window.removeEventListener("appinstalled", appInstalledHandler)
+  }
+}, [])
+
 
   const handleInstallApp = async () => {
     if (deferredPrompt) {
@@ -376,23 +382,23 @@ export default function Home() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 pb-8 opacity-100">
-          <Button
-            onClick={handleOrderNow}
-            className="bg-[#003262] text-white hover:bg-[#003262] hover:brightness-110 active:brightness-110 transition-all duration-300 px-6 sm:px-8 py-2 rounded-full font-semibold text-sm sm:text-base"
-          >
-            Order Now
-          </Button>
+<div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 pb-8 opacity-100">
+  <Button
+    onClick={handleOrderNow}
+    className="bg-[#003262] text-white hover:bg-[#003262] hover:brightness-110 active:brightness-110 transition-all duration-300 px-6 sm:px-8 py-2 rounded-full font-semibold text-sm sm:text-base"
+  >
+    Order Now
+  </Button>
 
-          {showInstallButton && (
-            <Button
-              onClick={handleInstallApp}
-              className="bg-[#003262] text-white hover:text-white hover:bg-[#003262] hover:brightness-110 active:brightness-110 transition-all duration-300 px-6 sm:px-8 py-2 rounded-full font-semibold text-sm sm:text-base"
-            >
-              Download App
-            </Button>
-          )}
-        </div>
+  {/* Download App button always visible for demo purposes */}
+  <Button
+    onClick={handleInstallApp}
+    className="bg-[#003262] text-white hover:text-white hover:bg-[#003262] hover:brightness-110 active:brightness-110 transition-all duration-300 px-6 sm:px-8 py-2 rounded-full font-semibold text-sm sm:text-base"
+  >
+    Download App
+  </Button>
+</div>
+
 
         <ContactSection />
       </div>

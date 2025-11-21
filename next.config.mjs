@@ -1,7 +1,5 @@
-import { withPWA } from "next-pwa";
-
 /** @type {import('next').NextConfig} */
-const nextConfig = withPWA({
+const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -9,10 +7,11 @@ const nextConfig = withPWA({
     unoptimized: true,
   },
   pwa: {
-    dest: "public",        // where service worker and PWA files will be generated
-    register: true,        // auto-register service worker
-    skipWaiting: true,     // activate SW immediately
+    dest: 'public',    // where the service worker and manifest live
+    register: true,    // auto-register service worker
+    skipWaiting: true, // activate new SW immediately
   },
-});
+  turbopack: {},       // optional: silences Turbopack warnings
+}
 
-export default nextConfig;
+export default nextConfig
