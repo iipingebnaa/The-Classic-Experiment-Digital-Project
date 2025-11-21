@@ -337,7 +337,7 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
             {pricingData.map((category, index) => {
               const isExpanded = expandedCard === index
-              const displayItems = isExpanded ? category.items : category.items.slice(0, 6)
+              const displayItems = isExpanded ? category.items : category.items.slice(0, 5)
 
               return (
                 <Card
@@ -371,7 +371,7 @@ export default function Home() {
                     </div>
 
                     {/* More button */}
-                    {category.items.length > 6 && !isExpanded && (
+                    {category.items.length > 5 && !isExpanded && (
                       <button
                         onClick={() => setExpandedCard(index)}
                         className="mt-2 text-[#003262] font-semibold text-sm underline hover:brightness-110 transition self-start bg-transparent px-0 py-0"
