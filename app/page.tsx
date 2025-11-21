@@ -178,7 +178,7 @@ export default function Home() {
         />
         <meta name="keywords" content="laundry, dry cleaning, ironing, washing, Classic Clean Laundry, Namibia" />
         <meta name="author" content="Classic Clean Laundry" />
-        <link rel="canonical" href="https://www.yourdomain.com/" />
+        <link rel="canonical" href="https://www.scc-laundry.com/" />
       </Head>
 
       <div className="min-h-screen bg-gradient-to-b from-[#70A3C4] to-[#9ECAE1]" id="home">
@@ -228,14 +228,10 @@ export default function Home() {
                   Login
                 </a>
 
-                {showInstallButton && (
-                  <a
-                    onClick={handleInstallApp}
-                    className="bg-[#003262] text-white px-4 py-2 rounded-full font-medium shadow-md hover:bg-[#002244] transition cursor-pointer"
-                  >
-                    Download App
-                  </a>
-                )}
+                <a onClick={triggerUnderConstruction} className="bg-[#003262] text-white px-4 py-2 rounded-full font-medium shadow-md hover:bg-[#003262] transition cursor-pointer">
+                  SignUp
+                </a>
+
               </nav>
 
               <button className="p-2 flex-shrink-0 md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
@@ -272,21 +268,62 @@ export default function Home() {
             </div>
 
             {/* Process Flow */}
-            <div className="absolute top-8 sm:top-12 md:top-16 left-2 right-2 sm:left-4 sm:right-4 md:left-16 md:right-16 lg:left-32 lg:right-32 bg-white/70 backdrop-blur-sm leading-7 border-none opacity-85 py-2 sm:py-3 px-2 sm:px-4 rounded-xl">
-              <div className="flex items-center justify-center gap-3 sm:gap-4 md:gap-6 flex-nowrap mx-auto text-[10px] sm:text-xs">
-                {["Pickup", "Wash", "Iron", "Pack", "Delivery"].map((step, idx) => (
-                  <div key={step} className="flex flex-col items-center w-12 sm:w-16">
-                    <img
-                      src={`/assets/icons/${step}-unscreen.gif`}
-                      className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
-                      alt={step}
-                    />
-                    <span className="font-semibold mt-1">{step}</span>
-                    {idx < 4 && <span className="text-sm sm:text-lg">→</span>}
-                  </div>
-                ))}
-              </div>
-            </div>
+<div className="absolute top-8 sm:top-12 md:top-16 left-2 right-2 sm:left-4 sm:right-4 md:left-16 md:right-16 lg:left-32 lg:right-32 bg-white/70 backdrop-blur-sm leading-7 border-none opacity-85 py-2 sm:py-3 px-2 sm:px-4 rounded-xl">
+  <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-6 mx-auto text-[10px] sm:text-xs">
+
+    {/* Pickup */}
+    <div className="flex flex-col items-center w-12 sm:w-16">
+      <img src="/assets/icons/Pickup-unscreen.gif" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" alt="Pickup" />
+      <span className="font-semibold mt-1">Pickup</span>
+    </div>
+
+    {/* Arrow */}
+    <div className="flex items-center justify-center">
+      <span className="text-sm sm:text-lg">→</span>
+    </div>
+
+    {/* Wash */}
+    <div className="flex flex-col items-center w-12 sm:w-16">
+      <img src="/assets/icons/Wash-unscreen.gif" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" alt="Wash" />
+      <span className="font-semibold mt-1">Wash</span>
+    </div>
+
+    {/* Arrow */}
+    <div className="flex items-center justify-center">
+      <span className="text-sm sm:text-lg">→</span>
+    </div>
+
+    {/* Iron */}
+    <div className="flex flex-col items-center w-12 sm:w-16">
+      <img src="/assets/icons/Iron-unscreen.gif" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" alt="Iron" />
+      <span className="font-semibold mt-1">Iron</span>
+    </div>
+
+    {/* Arrow */}
+    <div className="flex items-center justify-center">
+      <span className="text-sm sm:text-lg">→</span>
+    </div>
+
+    {/* Pack */}
+    <div className="flex flex-col items-center w-12 sm:w-16">
+      <img src="/assets/icons/Pack-unscreen.gif" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" alt="Pack" />
+      <span className="font-semibold mt-1">Pack</span>
+    </div>
+
+    {/* Arrow */}
+    <div className="flex items-center justify-center">
+      <span className="text-sm sm:text-lg">→</span>
+    </div>
+
+    {/* Delivery */}
+    <div className="flex flex-col items-center w-14 sm:w-20">
+      <img src="/assets/icons/Delivery-unscreen.gif" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" alt="Delivery" />
+      <span className="font-semibold mt-1">Delivery</span>
+    </div>
+
+  </div>
+</div>
+
 
             {/* Order Now */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-2">
