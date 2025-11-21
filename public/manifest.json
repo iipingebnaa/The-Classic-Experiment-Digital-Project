@@ -1,0 +1,20 @@
+{
+  "name": "Classic Clean Laundry",
+  "short_name": "CC Laundry",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#003262",
+  "icons": [
+    {
+      "src": "/assets/ccl.logo.jpg",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/ccl.logo.jpg",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
