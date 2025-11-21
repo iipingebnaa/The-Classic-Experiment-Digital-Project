@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Head from "next/head"
 import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -16,11 +16,47 @@ export default function Home() {
   const [expandedCard, setExpandedCard] = useState<number | null>(null)
   const [underConstruction, setUnderConstruction] = useState(false)
 
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
+  const [showInstallButton, setShowInstallButton] = useState(false)
+
   const triggerUnderConstruction = () => setUnderConstruction(true)
   const closeUnderConstruction = () => setUnderConstruction(false)
 
   const handleOrderNow = () => {
     triggerUnderConstruction()
+  }
+
+  // PWA Install button logic
+  useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault()
+      setDeferredPrompt(e)
+      setShowInstallButton(true)
+    }
+
+    const appInstalledHandler = () => {
+      setShowInstallButton(false)
+    }
+
+    window.addEventListener("beforeinstallprompt", handler)
+    window.addEventListener("appinstalled", appInstalledHandler)
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler)
+      window.removeEventListener("appinstalled", appInstalledHandler)
+    }
+  }, [])
+
+  const handleInstallApp = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt()
+      const { outcome } = await deferredPrompt.userChoice
+      console.log("User choice:", outcome)
+      setDeferredPrompt(null)
+      setShowInstallButton(false)
+    } else {
+      triggerUnderConstruction()
+    }
   }
 
   const pricingData = [
@@ -137,29 +173,6 @@ export default function Home() {
         <meta name="keywords" content="laundry, dry cleaning, ironing, washing, Classic Clean Laundry, Namibia" />
         <meta name="author" content="Classic Clean Laundry" />
         <link rel="canonical" href="https://www.yourdomain.com/" />
-
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "LaundryService",
-              "name": "Classic Clean Laundry",
-              "image": "https://www.yourdomain.com/assets/ccl.logo.jpg",
-              "url": "https://www.yourdomain.com",
-              "telephone": "+264 XXX XXX XXX",
-              "address": {
-                "@type": "PostalAddress",
-                "streetAddress": "123 Main Street",
-                "addressLocality": "Windhoek",
-                "addressRegion": "KH",
-                "postalCode": "9000",
-                "addressCountry": "NA"
-              },
-              "openingHours": "Mo-Sa 08:00-18:00"
-            })
-          }}
-        />
       </Head>
 
       <div className="min-h-screen bg-gradient-to-b from-[#70A3C4] to-[#9ECAE1]" id="home">
@@ -170,7 +183,6 @@ export default function Home() {
         />
         <WhatsAppButton />
 
-        {/* Under Construction Overlay */}
         {underConstruction && (
           <div className="fixed inset-0 z-50 bg-white flex flex-col justify-center items-center p-4">
             <p className="text-[#003262] text-2xl sm:text-3xl font-bold text-center">
@@ -186,7 +198,7 @@ export default function Home() {
         )}
 
         {/* Fixed Header */}
-        {!menuOpen && !underConstruction &&(
+        {!menuOpen && !underConstruction && (
           <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm z-50 px-6 md:px-12 flex items-center justify-between shadow-sm h-16 md:h-20 lg:h-20">
             <div className="flex items-center h-full">
               <img
@@ -206,19 +218,18 @@ export default function Home() {
                 <a href="#home" className="text-[#003262] font-medium hover:underline">Home</a>
                 <a href="#contact" className="text-[#003262] font-medium hover:underline">Contact</a>
 
-                <a onClick={triggerUnderConstruction}
-  className="text-[#003262] font-medium hover:underline cursor-pointer"
->
-  Login
-</a>
+                <a onClick={triggerUnderConstruction} className="text-[#003262] font-medium hover:underline cursor-pointer">
+                  Login
+                </a>
 
-<a
-  onClick={triggerUnderConstruction}
-  className="bg-[#003262] text-white px-4 py-2 rounded-full font-medium shadow-md hover:bg-[#002244] transition cursor-pointer"
->
-  SignUp
-</a>
-
+                {showInstallButton && (
+                  <a
+                    onClick={handleInstallApp}
+                    className="bg-[#003262] text-white px-4 py-2 rounded-full font-medium shadow-md hover:bg-[#002244] transition cursor-pointer"
+                  >
+                    Download App
+                  </a>
+                )}
               </nav>
 
               <button className="p-2 flex-shrink-0 md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
@@ -237,7 +248,7 @@ export default function Home() {
               className="w-full h-full object-cover opacity-50"
             />
 
-            {/* Bubbles Overlay */}
+            {/* Bubbles */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden">
               {[...Array(12)].map((_, i) => (
                 <div
@@ -257,63 +268,21 @@ export default function Home() {
             {/* Process Flow */}
             <div className="absolute top-8 sm:top-12 md:top-16 left-2 right-2 sm:left-4 sm:right-4 md:left-16 md:right-16 lg:left-32 lg:right-32 bg-white/70 backdrop-blur-sm leading-7 border-none opacity-85 py-2 sm:py-3 px-2 sm:px-4 rounded-xl">
               <div className="flex items-center justify-center gap-3 sm:gap-4 md:gap-6 flex-nowrap mx-auto text-[10px] sm:text-xs">
-                {/* Pickup */}
-                <div className="flex flex-col items-center w-12 sm:w-16">
-                  <img
-                    src="/assets/icons/Pickup-unscreen.gif"
-                    className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
-                    alt="Pickup"
-                  />
-                  <span className="font-semibold mt-1">Pickup</span>
-                </div>
-                <span className="text-sm sm:text-lg">→</span>
-
-                {/* Wash */}
-                <div className="flex flex-col items-center w-12 sm:w-16">
-                  <img
-                    src="/assets/icons/Wash-unscreen.gif"
-                    className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
-                    alt="Wash"
-                  />
-                  <span className="font-semibold mt-1">Wash</span>
-                </div>
-                <span className="text-sm sm:text-lg">→</span>
-
-                {/* Iron */}
-                <div className="flex flex-col items-center w-12 sm:w-16">
-                  <img
-                    src="/assets/icons/Iron-unscreen.gif"
-                    className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
-                    alt="Iron"
-                  />
-                  <span className="font-semibold mt-1">Iron</span>
-                </div>
-                <span className="text-sm sm:text-lg">→</span>
-
-                {/* Pack */}
-                <div className="flex flex-col items-center w-12 sm:w-16">
-                  <img
-                    src="/assets/icons/Pack-unscreen.gif"
-                    className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
-                    alt="Pack"
-                  />
-                  <span className="font-semibold mt-1">Pack</span>
-                </div>
-                <span className="text-sm sm:text-lg">→</span>
-
-                {/* Delivery */}
-                <div className="flex flex-col items-center w-14 sm:w-20">
-                  <img
-                    src="/assets/icons/Delivery-unscreen.gif"
-                    className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
-                    alt="Delivery"
-                  />
-                  <span className="font-semibold mt-1">Delivery</span>
-                </div>
+                {["Pickup", "Wash", "Iron", "Pack", "Delivery"].map((step, idx) => (
+                  <div key={step} className="flex flex-col items-center w-12 sm:w-16">
+                    <img
+                      src={`/assets/icons/${step}-unscreen.gif`}
+                      className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
+                      alt={step}
+                    />
+                    <span className="font-semibold mt-1">{step}</span>
+                    {idx < 4 && <span className="text-sm sm:text-lg">→</span>}
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Order Now Button Overlay */}
+            {/* Order Now */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-2">
               <Button
                 onClick={handleOrderNow}
@@ -370,7 +339,6 @@ export default function Home() {
                       ))}
                     </div>
 
-                    {/* More button */}
                     {category.items.length > 5 && !isExpanded && (
                       <button
                         onClick={() => setExpandedCard(index)}
@@ -380,7 +348,6 @@ export default function Home() {
                       </button>
                     )}
 
-                    {/* Show Less button */}
                     {isExpanded && (
                       <button
                         onClick={() => setExpandedCard(null)}
@@ -417,12 +384,14 @@ export default function Home() {
             Order Now
           </Button>
 
-          <Button
-            onClick={triggerUnderConstruction}
-            className="bg-[#003262] text-white hover:text-white hover:bg-[#003262] hover:brightness-110 active:brightness-110 transition-all duration-300 px-6 sm:px-8 py-2 rounded-full font-semibold text-sm sm:text-base"
-          >
-            Download App
-          </Button>
+          {showInstallButton && (
+            <Button
+              onClick={handleInstallApp}
+              className="bg-[#003262] text-white hover:text-white hover:bg-[#003262] hover:brightness-110 active:brightness-110 transition-all duration-300 px-6 sm:px-8 py-2 rounded-full font-semibold text-sm sm:text-base"
+            >
+              Download App
+            </Button>
+          )}
         </div>
 
         <ContactSection />
