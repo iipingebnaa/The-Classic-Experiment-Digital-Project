@@ -206,12 +206,19 @@ export default function Home() {
                 <a href="#home" className="text-[#003262] font-medium hover:underline">Home</a>
                 <a href="#contact" className="text-[#003262] font-medium hover:underline">Contact</a>
 
-                <Button
-                  onClick={triggerUnderConstruction}
-                  className="bg-[#003262] text-white px-4 py-1.5 rounded-full font-semibold hover:brightness-110 transition"
-                >
-                  Order Now
-                </Button>
+                <a onClick={triggerUnderConstruction}
+  className="text-[#003262] font-medium hover:underline cursor-pointer"
+>
+  Login
+</a>
+
+<a
+  onClick={triggerUnderConstruction}
+  className="bg-[#003262] text-white px-4 py-2 rounded-full font-medium shadow-md hover:bg-[#002244] transition cursor-pointer"
+>
+  SignUp
+</a>
+
               </nav>
 
               <button className="p-2 flex-shrink-0 md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
@@ -356,7 +363,7 @@ export default function Home() {
                           <span className="flex-1 text-left text-gray-700 text-xs sm:text-sm truncate">
                             {item.name}
                           </span>
-                          <span className="font-semibold text-[#408ac8] text-xs sm:text-sm flex-shrink-0">
+                          <span className="font-semibold text-[#003269] text-xs sm:text-sm flex-shrink-0">
                             {item.price}
                           </span>
                         </div>

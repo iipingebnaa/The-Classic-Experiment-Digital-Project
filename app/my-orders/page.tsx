@@ -11,7 +11,7 @@ import Link from "next/link"
 export default function MyOrders() {
   const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false) // ✅ track login state
+  const [isLoggedIn, setIsLoggedIn] = useState(false) // track login state
 
   useEffect(() => {
     // Only runs in browser
@@ -27,7 +27,11 @@ export default function MyOrders() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Mobile Menu Component */}
-      <MobileMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+      <MobileMenu
+        isOpen={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        triggerUnderConstruction={() => alert("Feature under construction")}
+      />
 
       {/* Fixed Header */}
       {!menuOpen && (
