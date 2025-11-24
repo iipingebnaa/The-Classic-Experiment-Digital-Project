@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Poppins } from "next/font/google"
 import "./globals.css"
+import Script from "next/script"
 
 const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700"],
@@ -82,6 +83,27 @@ export default function RootLayout({
         className={`${poppins.variable} antialiased`}
         style={{ fontFamily: "var(--font-poppins), sans-serif" }}
       >
+ {/* Google Analytics */}
+  <Script
+    strategy="afterInteractive"
+    src={`https://www.googletagmanager.com/gtag/js?id=G-TRC50EZZJH`}
+  />
+  {/* Google tag (gtag.js) */}
+  <Script
+    id="gtag-init"
+    strategy="afterInteractive"
+    dangerouslySetInnerHTML={{
+      __html: `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-TRC50EZZJH');
+      `,
+    }}
+  />
+
+        
+
         {children}
       </body>
     </html>
