@@ -68,7 +68,7 @@ export default function Home() {
   const pricingData = [
     {
       title: "Baskets",
-      image: "/assets/images/white-laundry-basket-with-clean-clothes.jpg",
+      image: "/assets/images/white-laundry-basket-with-clean-clothes.png",
       items: [
         { name: "1kg - 3kg Small Basket", price: "N$165" },
         { name: "4kg - 7kg Medium Basket", price: "N$275" },
@@ -77,7 +77,7 @@ export default function Home() {
     },
     {
       title: "Basket Iron Only",
-      image: "/assets/images/steam-iron-pressing-clothes-in-laundry-basket.jpg",
+      image: "/assets/images/steam-iron-pressing-clothes-in-laundry-basket.png",
       items: [
         { name: "Small", price: "N$120" },
         { name: "Medium", price: "N$250" },
@@ -123,7 +123,7 @@ export default function Home() {
     },
     {
       title: "Blankets/Duvet inners",
-      image: "/assets/images/cozy-blankets-and-duvet-inners-folded-on-shelf.jpg",
+      image: "/assets/images/cozy-blankets-and-duvet-inners-folded-on-shelf.webp",
       items: [
         { name: "Single", price: "N$55" },
         { name: "Double", price: "N$88" },
@@ -135,7 +135,7 @@ export default function Home() {
     },
     {
       title: "Beddings",
-      image: "/assets/images/clean-bed-sheets-and-pillowcases-neatly-stacked.jpg",
+      image: "/assets/images/clean-bed-sheets-and-pillowcases-neatly-stacked.png",
       items: [
         { name: "Throw (Medium)", price: "N$44" },
         { name: "Heavy Throw", price: "N$66" },
@@ -148,7 +148,7 @@ export default function Home() {
     },
     {
       title: "Others",
-      image: "/assets/images/formal-suit-and-coat-hanging-on-rack.jpg",
+      image: "/assets/images/formal-suit-and-coat-hanging-on-rack.webp",
       items: [
         { name: "Suit", price: "N$110" },
         { name: "Winter Coat (Short)", price: "N$55" },
@@ -208,7 +208,7 @@ export default function Home() {
           <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm z-50 px-6 md:px-12 flex items-center justify-between shadow-sm h-16 md:h-20 lg:h-20">
             <div className="flex items-center h-full">
               <img
-                src="/assets/ccl.logo.jpg"
+                src="/assets/ccl.logo.png"
                 alt="Classic Clean Laundry Logo"
                 className="object-contain w-20 h-20 sm:w-20 sm:h-20 md:w-20 md:h-24 lg:w-28 lg:h-28"
               />
