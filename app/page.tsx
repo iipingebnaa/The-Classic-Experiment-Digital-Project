@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Head from "next/head"
 import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -41,10 +40,6 @@ export default function Home() {
   window.addEventListener("beforeinstallprompt", handler)
   window.addEventListener("appinstalled", appInstalledHandler)
 
-  // Force show in dev for testing
-  if (process.env.NODE_ENV === "development") {
-    setShowInstallButton(true)
-  }
 
   return () => {
     window.removeEventListener("beforeinstallprompt", handler)
@@ -170,17 +165,7 @@ export default function Home() {
 
   return (
     <>
-      <Head>
-        <title>Classic Clean Laundry | Affordable & Fast Laundry Services</title>
-        <meta
-          name="description"
-          content="Classic Clean Laundry offers fast, reliable, and affordable laundry services in Namibia. Order online or visit our location."
-        />
-        <meta name="keywords" content="laundry, dry cleaning, ironing, washing, Classic Clean Laundry, Namibia" />
-        <meta name="author" content="Classic Clean Laundry" />
-        <link rel="canonical" href="https://www.scc-laundry.com/" />
-      </Head>
-
+      
       <div className="min-h-screen bg-gradient-to-b from-[#70A3C4] to-[#9ECAE1]" id="home">
         <MobileMenu
           isOpen={menuOpen}
@@ -428,12 +413,14 @@ export default function Home() {
   </Button>
 
   {/* Download App button always visible for demo purposes */}
-  <Button
-    onClick={handleInstallApp}
-    className="bg-[#003262] text-white hover:text-white hover:bg-[#003262] hover:brightness-110 active:brightness-110 transition-all duration-300 px-6 sm:px-8 py-2 rounded-full font-semibold text-sm sm:text-base"
-  >
-    Download App
-  </Button>
+  {showInstallButton && (
+        <Button
+          onClick={handleInstallApp}
+          className="bg-[#003262] text-white px-6 py-2 rounded-full font-semibold hover:brightness-110"
+        >
+          Download App
+        </Button>
+      )}
 </div>
 
 
