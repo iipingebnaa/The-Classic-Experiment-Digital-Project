@@ -8,6 +8,7 @@ import MobileMenu from "@/components/mobile-menu"
 import ContactSection from "@/components/contact-section"
 import WhatsAppButton from "@/components/whatsapp-button"
 import { useRouter } from "next/navigation"
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister"
 
 export default function Home() {
   const router = useRouter()
@@ -17,6 +18,7 @@ export default function Home() {
 
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
   const [showInstallButton, setShowInstallButton] = useState(false)
+  const [showUpdateButton, setShowUpdateButton] = useState(false)
 
   const triggerUnderConstruction = () => setUnderConstruction(true)
   const closeUnderConstruction = () => setUnderConstruction(false)
@@ -25,28 +27,36 @@ export default function Home() {
     triggerUnderConstruction()
   }
 
+  // Detect if app is installed
+  const isAppInstalled = () => {
+    if (window.matchMedia("(display-mode: standalone)").matches) return true
+    if ((window.navigator as any).standalone) return true
+    return false
+  }
+
   // PWA Install button logic
   useEffect(() => {
-  const handler = (e: any) => {
-    e.preventDefault()
-    setDeferredPrompt(e)
-    setShowInstallButton(true)
-  }
+    // Show install button if app is not installed
+    if (!isAppInstalled()) setShowInstallButton(true)
 
-  const appInstalledHandler = () => {
-    setShowInstallButton(false)
-  }
+    const handler = (e: any) => {
+      e.preventDefault()
+      setDeferredPrompt(e)
+      setShowInstallButton(true)
+    }
 
-  window.addEventListener("beforeinstallprompt", handler)
-  window.addEventListener("appinstalled", appInstalledHandler)
+    const appInstalledHandler = () => {
+      setShowInstallButton(false)
+    }
 
+    window.addEventListener("beforeinstallprompt", handler)
+    window.addEventListener("appinstalled", appInstalledHandler)
 
-  return () => {
-    window.removeEventListener("beforeinstallprompt", handler)
-    window.removeEventListener("appinstalled", appInstalledHandler)
-  }
-}, [])
-
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler)
+      window.removeEventListener("appinstalled", appInstalledHandler)
+    }
+  }, [])
 
   const handleInstallApp = async () => {
     if (deferredPrompt) {
@@ -57,6 +67,13 @@ export default function Home() {
       setShowInstallButton(false)
     } else {
       triggerUnderConstruction()
+    }
+  }
+
+  const handleUpdateApp = () => {
+    if (navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: "SKIP_WAITING" })
+      window.location.reload()
     }
   }
 
@@ -165,8 +182,11 @@ export default function Home() {
 
   return (
     <>
-      
       <div className="min-h-screen bg-gradient-to-b from-[#70A3C4] to-[#9ECAE1]" id="home">
+        
+        {/* Service Worker */}
+        <ServiceWorkerRegister onUpdateFound={() => setShowUpdateButton(true)} />
+
         <MobileMenu
           isOpen={menuOpen}
           onClose={() => setMenuOpen(false)}
@@ -253,10 +273,9 @@ export default function Home() {
             </div>
 
             {/* Process Flow */}
-<div className="absolute top-8 sm:top-12 md:top-16 left-2 right-2 sm:left-4 sm:right-4 md:left-16 md:right-16 lg:left-32 lg:right-32 bg-white/70 backdrop-blur-sm leading-7 border-none opacity-85 py-2 sm:py-3 px-2 sm:px-4 rounded-xl">
-  <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-6 mx-auto text-[10px] sm:text-xs">
-
-    {/* Pickup */}
+            <div className="absolute top-8 sm:top-12 md:top-16 left-2 right-2 sm:left-4 sm:right-4 md:left-16 md:right-16 lg:left-32 lg:right-32 bg-white/70 backdrop-blur-sm leading-7 border-none opacity-85 py-2 sm:py-3 px-2 sm:px-4 rounded-xl">
+              <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-6 mx-auto text-[10px] sm:text-xs">
+                {/* Pickup */}
     <div className="flex flex-col items-center w-12 sm:w-16">
       <img src="/assets/icons/Pickup-unscreen.gif" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" alt="Pickup" />
       <span className="font-semibold mt-1">Pickup</span>
@@ -305,10 +324,8 @@ export default function Home() {
       <img src="/assets/icons/Delivery-unscreen.gif" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" alt="Delivery" />
       <span className="font-semibold mt-1">Delivery</span>
     </div>
-
-  </div>
-</div>
-
+              </div>
+            </div>
 
             {/* Order Now */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-2">
@@ -404,25 +421,32 @@ export default function Home() {
         </div>
 
         {/* Action Buttons */}
-<div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 pb-8 opacity-100">
-  <Button
-    onClick={handleOrderNow}
-    className="bg-[#003262] text-white hover:bg-[#003262] hover:brightness-110 active:brightness-110 transition-all duration-300 px-6 sm:px-8 py-2 rounded-full font-semibold text-sm sm:text-base"
-  >
-    Order Now
-  </Button>
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 pb-8 opacity-100">
+          <Button
+            onClick={handleOrderNow}
+            className="bg-[#003262] text-white hover:bg-[#003262] hover:brightness-110 active:brightness-110 transition-all duration-300 px-6 sm:px-8 py-2 rounded-full font-semibold text-sm sm:text-base"
+          >
+            Order Now
+          </Button>
 
-  {/* Download App button always visible for demo purposes */}
-  {showInstallButton && (
-        <Button
-          onClick={handleInstallApp}
-          className="bg-[#003262] text-white px-6 py-2 rounded-full font-semibold hover:brightness-110"
-        >
-          Download App
-        </Button>
-      )}
-</div>
+          {!showUpdateButton && showInstallButton && (
+            <Button
+              onClick={handleInstallApp}
+              className="bg-[#003262] text-white px-6 py-2 rounded-full font-semibold hover:brightness-110"
+            >
+              Download App
+            </Button>
+          )}
 
+          {showUpdateButton && (
+            <Button
+              onClick={handleUpdateApp}
+              className="bg-[#003262] text-white px-6 py-2 rounded-full font-semibold hover:brightness-110"
+            >
+              Update App
+            </Button>
+          )}
+        </div>
 
         <ContactSection />
       </div>
