@@ -1,38 +1,24 @@
-// public/service-worker.js
-
-const CACHE_NAME = "ccl-precache-v1";
+const CACHE_NAME = "ccl-precache-v4";
 const RUNTIME_CACHE = "ccl-runtime-cache";
 
-// Pre-cache essential assets (shell)
+// Pre-cache landing page + essential assets
 const PRECACHE_ASSETS = [
-  "/",                  //corresponds to app/page.tsx in production
-  "/offline.html",            
-  "/globals.css",             
-  "/favicon.png",             
-  "/apple-icon.png",          
-  "/assets/ccl.logo.png",     
-  "/assets/ccl.logo.jpg",     
-  "/assets/ccl.logo.svg",     
-  "/assets/ccl.logo.webp",    
-  "/_next/static/*",          
+  "/",               // Landing page (Home + ContactSection)
+  "/index.html",     // Ensure index file is cached
+  "/offline.html",
+  "/favicon.png",
+  "/apple-icon.png",
 ];
 
-// Assets to cache at runtime (first visit)
-const RUNTIME_ASSETS = [
-  "/assets/images/",          
-  "/assets/icons/",           
-];
-
-// Install event: cache pre-cache assets
+// Install event: pre-cache assets
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(PRECACHE_ASSETS))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
   );
   self.skipWaiting();
 });
 
-// Activate event: clean old caches
+// Activate event: clean up old caches
 self.addEventListener("activate", (event) => {
   const currentCaches = [CACHE_NAME, RUNTIME_CACHE];
   event.waitUntil(
@@ -49,37 +35,74 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Fetch event: respond with cache or network
+// Fetch event
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
-  // Navigation requests (HTML)
+  const url = new URL(event.request.url);
+
+  // Handle navigation requests (HTML)
   if (event.request.mode === "navigate") {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match("/offline.html"))
-    );
-    return;
-  }
+      fetch(event.request)
+        .then((response) => {
+          // NEVER overwrite landing page
+          if (url.pathname === "/" || url.pathname.endsWith("index.html")) {
+            return response;
+          }
 
-  // Runtime caching for images & icons
-  if (RUNTIME_ASSETS.some(url => event.request.url.includes(url))) {
-    event.respondWith(
-      caches.match(event.request).then((cachedResponse) => {
-        if (cachedResponse) return cachedResponse;
-
-        return fetch(event.request).then((response) => {
           return caches.open(RUNTIME_CACHE).then((cache) => {
             cache.put(event.request, response.clone());
             return response;
           });
-        });
+        })
+        .catch(async () => {
+          // 1. Try exact match
+          const cachedPage = await caches.match(event.request);
+          if (cachedPage) return cachedPage;
+
+          // 2. Always serve landing page if offline
+          const cachedLanding = await caches.match("/") || await caches.match("/index.html");
+          if (cachedLanding) return cachedLanding;
+
+          // 3. Fallback
+          return caches.match("/offline.html");
+        })
+    );
+    return;
+  }
+
+  // Runtime caching: images, JS, CSS
+  if (
+    url.pathname.startsWith("/assets/") ||
+    url.pathname.startsWith("/_next/") ||
+    url.pathname.endsWith(".js") ||
+    url.pathname.endsWith(".css")
+  ) {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) return cachedResponse;
+
+        return fetch(event.request)
+          .then((response) =>
+            caches.open(RUNTIME_CACHE).then((cache) => {
+              cache.put(event.request, response.clone());
+              return response;
+            })
+          )
+          .catch(() => caches.match(event.request)); // fallback to cache if offline
       })
     );
     return;
   }
 
-  // Fallback for everything else
+  // Default network-first fallback
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => cachedResponse || fetch(event.request))
+    fetch(event.request).catch(() => caches.match(event.request))
   );
+});
+
+// Allow skip waiting for updates
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
 });
