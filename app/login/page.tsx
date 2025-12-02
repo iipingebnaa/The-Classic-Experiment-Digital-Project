@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -9,32 +7,62 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { Eye, EyeOff } from "lucide-react"
 
 export default function LoginPage() {
   const router = useRouter()
-  const [email, setEmail] = useState("")
+  const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+
+  // Namibia mobile number regex (same as SignUp)
+  const namibiaMobileRegex = /^(?:\+264|0)(81|83|84|85)\d{7}$/
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+
+    // Validate required fields
+    if (!username || !password) {
+      setError("Please fill in all required fields.")
+      return
+    }
+
+    // Validate cellphone format
+    if (!namibiaMobileRegex.test(username)) {
+      setError("Username or password is incorrect")
+      return
+    }
+
     setLoading(true)
 
     try {
-      // TODO: Integrate with actual authentication API
-      // For now, simulate login
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+    // Real API call
+    const baseUrl = "https://staging.oxygen.siskusserver.com/api/login"; // staging URL
+    const response = await fetch(`${baseUrl}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: username,  // API expects "username"
+        password: password
+      }),
+    });
 
-      // Store user session (would be JWT token in production)
-      localStorage.setItem("userToken", "mock-token")
-      router.push("/my-orders")
-    } catch (err) {
-      setError("Invalid email or password")
-    } finally {
-      setLoading(false)
+    if (!response.ok) {
+      setError("Username or password is incorrect");
+      return;
     }
+
+    const data = await response.json();
+    localStorage.setItem("userToken", data.token); // store the real token
+    router.push("/my-orders");
+  } catch (err) {
+    setError("Username or password is incorrect");
+  } finally {
+    setLoading(false);
+  }
   }
 
   return (
@@ -46,29 +74,37 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="phone">Username</Label>
             <Input
-              id="email"
-              type="email"
-              placeholder="your.email@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="username"
+              type="text"
+              placeholder="FirstName LastName"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
-              className="mt-1 placeholder:text-sm sm:placeholder:text-base"
+              className="mt-1 text-sm sm:text-base placeholder:text-sm sm:placeholder:text-base"
             />
           </div>
 
-          <div>
+          <div className="relative">
             <Label htmlFor="password">Password</Label>
             <Input
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"} // toggles visibility
               placeholder="********"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="mt-1 placeholder:text-sm sm:placeholder:text-base"
+              className="mt-1 text-sm sm:text-baseplaceholder:text-sm sm:placeholder:text-base"
             />
+            <button
+              type="button"
+              className="absolute right-2 top-[50%] -translate-y-[10%] sm:-translate-y-[45%] text-gray-500"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+            </button>
+
           </div>
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
