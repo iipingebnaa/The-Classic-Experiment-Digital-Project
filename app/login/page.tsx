@@ -43,10 +43,10 @@ export default function LoginPage() {
       }),
     });
 
-    if (!response.ok) {
-      setError("Username or password is incorrect");
-      return;
-    }
+    if (!data.success) {
+    setError(data.message || "Username or password is incorrect");
+    return;
+  }
 
     const data = await response.json();
     document.cookie = `userToken=${data.token}; path=/; secure; samesite=strict`; //secure cookie storage
