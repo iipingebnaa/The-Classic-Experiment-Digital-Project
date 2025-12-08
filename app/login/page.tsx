@@ -38,17 +38,19 @@ export default function LoginPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        username: username,  // API expects "username"
-        password: password
+        username: username.trim(),  // API expects "username"
+        password: password.trim()
       }),
     });
+
+    const data = await response.json();
 
     if (!data.success) {
     setError(data.message || "Username or password is incorrect");
     return;
   }
 
-    const data = await response.json();
+  
     document.cookie = `userToken=${data.token}; path=/; secure; samesite=strict`; //secure cookie storage
 
     router.push("/my-orders");
