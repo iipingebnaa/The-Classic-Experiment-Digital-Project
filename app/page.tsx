@@ -24,7 +24,8 @@ export default function Home() {
   const closeUnderConstruction = () => setUnderConstruction(false)
 
   const handleOrderNow = () => {
-    triggerUnderConstruction()
+    //triggerUnderConstruction()
+    router.push("/order") 
   }
 
   // Detect if app is installed
