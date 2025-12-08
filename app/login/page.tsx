@@ -17,8 +17,7 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
-  // Namibia mobile number regex (same as SignUp)
-  const namibiaMobileRegex = /^(?:\+264|0)(81|83|84|85)\d{7}$/
+  const baseUrl = "https://staging.oxygen.siskusserver.com/api"; // staging URL
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,17 +29,11 @@ export default function LoginPage() {
       return
     }
 
-    // Validate cellphone format
-    if (!namibiaMobileRegex.test(username)) {
-      setError("Username or password is incorrect")
-      return
-    }
-
     setLoading(true)
 
     try {
-    // Real API call
-    const baseUrl = "https://staging.oxygen.siskusserver.com/api/login"; // staging URL
+    // API call
+    const baseUrl = "https://staging.oxygen.siskusserver.com/api"; // staging URL
     const response = await fetch(`${baseUrl}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -56,7 +49,8 @@ export default function LoginPage() {
     }
 
     const data = await response.json();
-    localStorage.setItem("userToken", data.token); // store the real token
+    document.cookie = `userToken=${data.token}; path=/; secure; samesite=strict`; //secure cookie storage
+
     router.push("/my-orders");
   } catch (err) {
     setError("Username or password is incorrect");
@@ -99,7 +93,7 @@ export default function LoginPage() {
             />
             <button
               type="button"
-              className="absolute right-2 top-[50%] -translate-y-[10%] sm:-translate-y-[45%] text-gray-500"
+              className="absolute right-2 top-[50%] -translate-y-[10%] sm:-translate-y-[40%] text-gray-500"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
