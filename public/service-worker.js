@@ -4,7 +4,7 @@ const RUNTIME_CACHE = "ccl-runtime-cache";
 // Pre-cache landing page + essential assets
 const PRECACHE_ASSETS = [
   "/",               // Landing page (Home + ContactSection)
-  "/index.html",     // Ensure index file is cached
+  //"/index.html",     // Ensure index file is cached
   "/offline.html",
   "/favicon.png",
   "/apple-icon.png",
