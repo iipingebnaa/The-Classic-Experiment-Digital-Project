@@ -8,32 +8,74 @@ import MobileMenu from "@/components/mobile-menu"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
+const STATUS_STEPS = [
+  "Not Started",
+  "Washing",
+  "Ironing",
+  "Packing",
+  "Ready for Pick Up",
+  "Being Delivered",
+]
+
 export default function MyOrders() {
   const router = useRouter()
   const [menuOpen, setMenuOpen] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false) // track login state
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [orders, setOrders] = useState<any[]>([])
+
+  // Get token from cookie
+  const getCookie = (name: string) => {
+    const value = `; ${document.cookie}`
+    const parts = value.split(`; ${name}=`)
+    if (parts.length === 2) return parts.pop()?.split(";").shift()
+  }
 
   useEffect(() => {
-    // Only runs in browser
-    setIsLoggedIn(!!localStorage.getItem("userToken"))
-  }, [])
+    const token = getCookie("userToken")
+    if (!token) {
+      router.push("/login?redirect=/my-orders")
+      return
+    }
+    setIsLoggedIn(true)
 
-  const ordersData = [
-    { id: 1, item: "Shirt Short Sleeve", price: "N$15", status: "Completed" },
-    { id: 2, item: "Trouser/Jeans", price: "N$20", status: "In Progress" },
-    { id: 3, item: "Blanket - Single", price: "N$55", status: "Pending" },
-  ]
+    // MOCK: Replace with real API call later
+    const mockOrders = [
+      {
+        id: 1,
+        item: "Shirt Short Sleeve",
+        price: "N$15",
+        status: "Not Started",
+      },
+      {
+        id: 2,
+        item: "Trouser/Jeans",
+        price: "N$20",
+        status: "Washing",
+      },
+      {
+        id: 3,
+        item: "Blanket - Single",
+        price: "N$55",
+        status: "Packing",
+      },
+    ]
+    setOrders(mockOrders)
+  }, [router])
+
+  const handleEditOrder = (orderId: number) => {
+    router.push(`/order?edit=${orderId}`)
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Mobile Menu Component */}
+      {/* Mobile Menu */}
       <MobileMenu
         isOpen={menuOpen}
         onClose={() => setMenuOpen(false)}
         triggerUnderConstruction={() => alert("Feature under construction")}
       />
 
-      {/* Fixed Header */}
+      {/* Header */}
       {!menuOpen && (
         <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm z-50 px-6 md:px-12 flex items-center justify-between shadow-sm h-16 md:h-20 lg:h-24">
           <div className="flex items-center h-full">
@@ -65,7 +107,7 @@ export default function MyOrders() {
 
               {isLoggedIn && (
                 <Button
-                  onClick={() => { localStorage.removeItem("userToken"); router.push("/"); setIsLoggedIn(false) }}
+                  onClick={() => { document.cookie = "userToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"; router.push("/"); setIsLoggedIn(false) }}
                   variant="outline"
                   className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
@@ -81,7 +123,7 @@ export default function MyOrders() {
         </header>
       )}
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Items */}
       {menuOpen && (
         <div className="md:hidden absolute top-16 left-0 right-0 bg-white z-40 shadow-md p-4 flex flex-col gap-3">
           <Link href="/"><span className="text-gray-700 hover:text-[#003262] cursor-pointer">Home</span></Link>
@@ -98,28 +140,46 @@ export default function MyOrders() {
           )}
 
           {isLoggedIn && (
-            <Button onClick={() => { localStorage.removeItem("userToken"); router.push("/"); setIsLoggedIn(false) }} className="w-full bg-white border-gray-300 text-gray-700 hover:bg-gray-50">
+            <Button onClick={() => { document.cookie = "userToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"; router.push("/"); setIsLoggedIn(false) }} className="w-full bg-white border-gray-300 text-gray-700 hover:bg-gray-50">
               Logout
             </Button>
           )}
         </div>
       )}
 
-      {/* Page Content */}
+      {/* Orders Content */}
       <div className="pt-20 px-4 md:px-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">My Orders</h2>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {ordersData.map((order) => (
-            <Card key={order.id} className="p-4 flex flex-col gap-2">
-              <h3 className="font-semibold text-gray-800">{order.item}</h3>
-              <p className="text-gray-600">Price: {order.price}</p>
-              <p className="text-gray-600">Status: {order.status}</p>
-              <div className="flex gap-2 mt-2">
-                <Link href="/order"><span className="text-blue-600 hover:underline cursor-pointer">Order Again</span></Link>
-                <Link href="/contact"><span className="text-blue-600 hover:underline cursor-pointer">Contact Support</span></Link>
-              </div>
-            </Card>
-          ))}
+          {orders.map((order) => {
+            const stepIndex = STATUS_STEPS.indexOf(order.status)
+            return (
+              <Card key={order.id} className="p-4 flex flex-col gap-2">
+                <h3 className="font-semibold text-gray-800">{order.item}</h3>
+                <p className="text-gray-600">Price: {order.price}</p>
+                <p className="text-gray-600">Status: {order.status}</p>
+
+                {/* Progress Bar */}
+                <div className="w-full h-2 bg-gray-200 rounded-full mt-2">
+                  <div
+                    className="h-2 bg-[#09943d] rounded-full transition-all duration-500"
+                    style={{ width: `${((stepIndex + 1) / STATUS_STEPS.length) * 100}%` }}
+                  />
+                </div>
+
+                {/* Edit button only for Not Started */}
+                {order.status === "Not Started" && (
+                  <Button
+                    onClick={() => handleEditOrder(order.id)}
+                    className="mt-2 bg-[#003262] text-white hover:bg-[#003262]"
+                  >
+                    Edit Order
+                  </Button>
+                )}
+              </Card>
+            )
+          })}
         </div>
       </div>
     </div>
