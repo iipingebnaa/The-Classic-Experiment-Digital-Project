@@ -8,7 +8,30 @@ import MobileMenu from "@/components/mobile-menu"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 
-const STATUS_STEPS = [
+
+export default function MyOrders() {
+  const router = useRouter()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [orders, setOrders] = useState<any[]>([])
+
+// Temporary mock orders for testing UI
+useEffect(() => {
+  setOrders([
+    { id: 1, itemName: "Shirt - Short Sleeve", price: "N$15", status: "Not Started" },
+    { id: 2, itemName: "Jeans", price: "N$20", status: "Washing" },
+    { id: 3, itemName: "Blanket", price: "N$55", status: "Ready for Pick Up" },
+    { id: 1, itemName: "Shirt - Short Sleeve", price: "N$15", status: "Not Started" },
+    { id: 1, itemName: "Shirt - Short Sleeve", price: "N$15", status: "Not Started" },
+    { id: 1, itemName: "Shirt - Short Sleeve", price: "N$15", status: "Not Started" },
+    { id: 1, itemName: "Shirt - Short Sleeve", price: "N$15", status: "Not Started" },
+    { id: 1, itemName: "Shirt - Short Sleeve", price: "N$15", status: "Not Started" },
+    { id: 1, itemName: "Shirt - Short Sleeve", price: "N$15", status: "Not Started" },
+  ])
+}, [])
+
+
+  const STATUS_STEPS = [
   "Not Started",
   "Washing",
   "Ironing",
@@ -17,11 +40,15 @@ const STATUS_STEPS = [
   "Being Delivered",
 ]
 
-export default function MyOrders() {
-  const router = useRouter()
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [orders, setOrders] = useState<any[]>([])
+const STATUS_COLOR: Record<string, string> = {
+  "Not Started": "#dc2626",     
+  "Washing": "#f97316",         
+  "Ironing": "#f97316",         
+  "Packing": "#f97316",         
+  "Ready for Pick Up": "#16a34a", 
+  "Being Delivered": "#16a34a",   
+};
+
 
   // Get token from cookie
   const getCookie = (name: string) => {
@@ -30,37 +57,42 @@ export default function MyOrders() {
     if (parts.length === 2) return parts.pop()?.split(";").shift()
   }
 
-  useEffect(() => {
+useEffect(() => {
+  const token = getCookie("userToken")
+  if (!token) {
+    router.push("/login?redirect=/my-orders")
+    return
+  }
+  setIsLoggedIn(true)
+}, [router])
+
+useEffect(() => {
+  const fetchOrders = async () => {
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`
+      const parts = value.split(`; ${name}=`)
+      if (parts.length === 2) return parts.pop()?.split(";").shift()
+    }
     const token = getCookie("userToken")
     if (!token) {
       router.push("/login?redirect=/my-orders")
       return
     }
-    setIsLoggedIn(true)
 
-    // MOCK: Replace with real API call later
-    const mockOrders = [
-      {
-        id: 1,
-        item: "Shirt Short Sleeve",
-        price: "N$15",
-        status: "Not Started",
-      },
-      {
-        id: 2,
-        item: "Trouser/Jeans",
-        price: "N$20",
-        status: "Washing",
-      },
-      {
-        id: 3,
-        item: "Blanket - Single",
-        price: "N$55",
-        status: "Packing",
-      },
-    ]
-    setOrders(mockOrders)
-  }, [router])
+    try {
+      const response = await fetch("https://staging.oxygen.siskusserver.com/api/sales?user=true", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const data = await response.json()
+      if (data.success) setOrders(data.orders || [])
+    } catch (error) {
+      console.error("Failed to fetch orders:", error)
+    }
+  }
+
+  fetchOrders()
+}, [router])
+
 
   const handleEditOrder = (orderId: number) => {
     router.push(`/order?edit=${orderId}`)
@@ -151,20 +183,32 @@ export default function MyOrders() {
       <div className="pt-20 px-4 md:px-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">My Orders</h2>
 
+      {/* Order Now button above the cards */}
+  <div className="mb-6 text-center">
+    <Link href="/order">
+      <button className="bg-[#003262] text-white px-6 py-3 rounded-lg hover:bg-[#003262]">
+        Order Now
+      </button>
+    </Link>
+  </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {orders.map((order) => {
             const stepIndex = STATUS_STEPS.indexOf(order.status)
             return (
               <Card key={order.id} className="p-4 flex flex-col gap-2">
-                <h3 className="font-semibold text-gray-800">{order.item}</h3>
+                <h3 className="font-semibold text-gray-800">{order.itemName}</h3>
                 <p className="text-gray-600">Price: {order.price}</p>
                 <p className="text-gray-600">Status: {order.status}</p>
 
                 {/* Progress Bar */}
                 <div className="w-full h-2 bg-gray-200 rounded-full mt-2">
                   <div
-                    className="h-2 bg-[#09943d] rounded-full transition-all duration-500"
-                    style={{ width: `${((stepIndex + 1) / STATUS_STEPS.length) * 100}%` }}
+                    className="h-2 rounded-full transition-all duration-500"
+                    style={{
+                     width: `${((STATUS_STEPS.indexOf(order.status) + 1) / STATUS_STEPS.length) * 100}%`,
+                     backgroundColor: STATUS_COLOR[order.status] || "#09943d", // fallback color
+                   }}
                   />
                 </div>
 
@@ -185,3 +229,5 @@ export default function MyOrders() {
     </div>
   )
 }
+
+
