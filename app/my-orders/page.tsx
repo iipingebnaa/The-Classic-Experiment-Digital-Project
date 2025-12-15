@@ -12,6 +12,8 @@ export default function MyOrders() {
   const router = useRouter()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [orders, setOrders] = useState<any[]>([])
+  const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
+
 
 /*  
 // Temporary mock orders for testing UI
@@ -126,37 +128,75 @@ useEffect(() => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {orders.map((order) => {
-            const stepIndex = STATUS_STEPS.indexOf(order.status)
-            return (
-              <Card key={order.id} className="p-4 flex flex-col gap-2 shadow-[0_15px_20px_rgba(0,0,0,0.25)]">
-                <h3 className="font-semibold text-gray-800">{order.itemName}</h3>
-                <p className="text-gray-900">Price: {order.price}</p>
-                <p className="text-gray-900">Status: {order.status}</p>
+  const stepIndex = STATUS_STEPS.indexOf(order.status)
+  const isExpanded = expandedOrderId === order.id
 
-                {/* Progress Bar */}
-                <div className="w-full h-2 bg-gray-200 rounded-full mt-2">
-                  <div
-                    className="h-2 rounded-full transition-all duration-500"
-                    style={{
-                     width: `${((STATUS_STEPS.indexOf(order.status) + 1) / STATUS_STEPS.length) * 100}%`,
-                     backgroundColor: STATUS_COLOR[order.status] || "#09943d", // fallback color
-                   }}
-                  />
-                </div>
+  return (
+    <Card key={order.id} className="p-3 flex flex-col gap-1 shadow-[0_15px_20px_rgba(0,0,0,0.25)] text-sm sm:text-sm">
+  {/* Collapsed info: only show key fields when not expanded */}
+  {!isExpanded && (
+    <>
+      <h3 className="font-semibold text-[#003262] text-base uppercase">{order.serviceType}</h3>
+      <p className="text-gray-900">Items: {order.itemCount}</p>
+      <p className="text-gray-900">Pickup: {order.pickupAddress}</p>
+      <p className="text-gray-900">Date/Time: {order.pickupDate}, {order.pickupTime}</p>
+      <p className="text-gray-900">Price: {order.price}</p>
+      <p className="text-gray-900">Status: {order.status}</p>
+    </>
+  )}
 
-                {/* Edit button only for Not Started */}
-                {order.status === "Not Started" && (
-                  <Button
-                    onClick={() => handleEditOrder(order.id)}
-                    className="mt-2 bg-[#003262] text-white hover:bg-[#003262]"
-                  >
-                    Edit Order
-                  </Button>
-                )}
-              </Card>
-              
-            )
-          })}
+  {/* Expanded Details: show all fields in the desired order */}
+  {isExpanded && (
+    <div className="flex flex-col gap-1">
+      <h3 className="font-semibold text-[#003262] text-base uppercase">{order.serviceType}</h3>
+      <p className="text-gray-900">Items: {order.itemCount}</p>
+      <p className="text-gray-900">Weight: {order.weight} kg</p>
+      <p className="text-gray-900">Softener: {order.softenerFlavor}</p>
+      {order.specialInstructions && (
+        <p className="text-gray-900">Notes: {order.specialInstructions}</p>
+      )}
+      <p className="text-gray-900">Pickup: {order.pickupAddress}</p>
+      <p className="text-gray-900">Date: {order.pickupDate}</p>
+      <p className="text-gray-900">Time: {order.pickupTime}</p>
+      <p className="text-gray-900">Price: {order.price}</p>
+      <p className="text-gray-900">Status: {order.status}</p>
+    </div>
+  )}
+
+  {/* Progress bar (always visible at the bottom) */}
+  <div className="w-full h-2 bg-gray-200 rounded-full mt-2">
+    <div
+      className="h-2 rounded-full transition-all duration-500"
+      style={{
+        width: `${((stepIndex + 1) / STATUS_STEPS.length) * 100}%`,
+        backgroundColor: STATUS_COLOR[order.status] || "#09943d",
+      }}
+    />
+  </div>
+
+  {/* Expand/Collapse Button */}
+  <button
+    onClick={() => setExpandedOrderId(isExpanded ? null : order.id)}
+    className="mt-2 text-[#003262] font-semibold text-sm underline hover:brightness-110 transition self-start bg-transparent px-0 py-0"
+  >
+    {isExpanded ? "Show Less" : "View More"}
+  </button>
+
+  {/* Edit button only for Not Started */}
+  {order.status === "Not Started" && (
+    <Button
+      onClick={() => handleEditOrder(order.id)}
+      className="mt-2 bg-[#003262] text-white hover:bg-[#003262]"
+    >
+      Edit Order
+    </Button>
+  )}
+</Card>
+
+
+  )
+})}
+
         </div>
       </div>
     </div>
