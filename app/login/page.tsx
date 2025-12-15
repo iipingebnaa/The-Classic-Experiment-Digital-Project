@@ -51,9 +51,17 @@ export default function LoginPage() {
   }
 
   
-    document.cookie = `userToken=${data.token}; path=/; secure; samesite=strict`; //secure cookie storage
+    //document.cookie = `userToken=${data.token}; path=/; secure; samesite=strict`; //secure cookie storage
+    // TEMPORARY: Mobile testing only — remove secure flag
+    document.cookie = `userToken=${data.token}; path=/; samesite=strict`;
 
-    router.push("/my-orders");
+
+   // router.push("/my-orders");
+const params = new URLSearchParams(window.location.search);
+const redirectTo = params.get("redirect") || "/my-orders"; // default if no redirect
+router.push(redirectTo);
+
+
   } catch (err) {
     setError("Username or password is incorrect");
   } finally {
