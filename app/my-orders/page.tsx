@@ -13,6 +13,7 @@ export default function MyOrders() {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [orders, setOrders] = useState<any[]>([])
 
+/*  
 // Temporary mock orders for testing UI
 useEffect(() => {
   setOrders([
@@ -26,7 +27,7 @@ useEffect(() => {
     { id: 8, itemName: "Shirt - Short Sleeve", price: "N$15", status: "Not Started" },
     { id: 9, itemName: "Shirt - Short Sleeve", price: "N$15", status: "Not Started" },
   ])
-}, [])
+}, []) */
 
 
   const STATUS_STEPS = [
@@ -64,6 +65,7 @@ useEffect(() => {
   setIsLoggedIn(true)
 }, [router])
 
+/*
 useEffect(() => {
   const fetchOrders = async () => {
     const getCookie = (name: string) => {
@@ -89,7 +91,14 @@ useEffect(() => {
   }
 
   fetchOrders()
-}, [router])
+}, [router]) */
+
+//temporary local storage orders fetch for testing purposes
+useEffect(() => {
+  const savedOrders = JSON.parse(localStorage.getItem("orders") || "[]")
+  setOrders(savedOrders)
+}, [])
+
 
 
   const handleEditOrder = (orderId: number) => {
