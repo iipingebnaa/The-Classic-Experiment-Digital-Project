@@ -1,10 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import MobileMenu from "@/components/mobile-menu"
+import Header from "@/components/header"
 import ContactSection from "@/components/contact-section"
 import WhatsAppButton from "@/components/whatsapp-button"
 import { useRouter } from "next/navigation"
@@ -24,7 +23,7 @@ export default function Home() {
   const closeUnderConstruction = () => setUnderConstruction(false)
 
   const handleOrderNow = () => {
-    //triggerUnderConstruction()
+    
     router.push("/order") 
   }
 
@@ -188,64 +187,9 @@ export default function Home() {
         {/* Service Worker */}
         <ServiceWorkerRegister onUpdateFound={() => setShowUpdateButton(true)} />
 
-        <MobileMenu
-          isOpen={menuOpen}
-          onClose={() => setMenuOpen(false)}
-          triggerUnderConstruction={triggerUnderConstruction}
-        />
-        <WhatsAppButton />
+        <Header />
 
-        {underConstruction && (
-          <div className="fixed inset-0 z-50 bg-white flex flex-col justify-center items-center p-4">
-            <p className="text-[#003262] text-2xl sm:text-3xl font-bold text-center">
-              This feature is under construction
-            </p>
-            <Button
-              onClick={closeUnderConstruction}
-              className="mt-6 bg-[#003262] text-white px-6 py-2 rounded-md font-semibold"
-            >
-              Close
-            </Button>
-          </div>
-        )}
-
-        {/* Fixed Header */}
-        {!menuOpen && !underConstruction && (
-          <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm z-50 px-6 md:px-12 flex items-center justify-between shadow-sm h-16 md:h-20 lg:h-20">
-            <div className="flex items-center h-full">
-              <img
-                src="/assets/ccl.logo.png"
-                alt="Classic Clean Laundry Logo"
-                className="object-contain w-20 h-20 sm:w-20 sm:h-20 md:w-20 md:h-24 lg:w-28 lg:h-28"
-              />
-            </div>
-
-            <h1 className="absolute w-full text-center left-1/2 transform -translate-x-1/2 z-10 text-[#003262] font-semibold tracking-wider text-sm sm:text-base md:text-lg lg:text-xl pointer-events-none">
-              <span className="block sm:inline">CLASSIC CLEAN</span>
-              <span className="block sm:inline"> LAUNDRY</span>
-            </h1>
-
-            <div className="flex items-center gap-4 md:gap-6">
-              <nav className="hidden md:flex gap-4 md:gap-6 items-center pr-4">
-                <a href="#home" className="text-[#003262] font-medium hover:underline">Home</a>
-                <a href="#contact" className="text-[#003262] font-medium hover:underline">Contact</a>
-
-                <a onClick={triggerUnderConstruction} className="text-[#003262] font-medium hover:underline cursor-pointer">
-                  Login
-                </a>
-
-                <a onClick={triggerUnderConstruction} className="bg-[#003262] text-white px-4 py-2 rounded-full font-medium shadow-md hover:bg-[#003262] transition cursor-pointer">
-                  SignUp
-                </a>
-
-              </nav>
-
-              <button className="p-2 flex-shrink-0 md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
-                <Menu className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 text-gray-950" />
-              </button>
-            </div>
-          </header>
-        )}
+        <WhatsAppButton /> 
 
         {/* Hero Section */}
         <div className="pt-16">
@@ -274,12 +218,12 @@ export default function Home() {
             </div>
 
             {/* Process Flow */}
-            <div className="absolute top-8 sm:top-12 md:top-16 left-2 right-2 sm:left-4 sm:right-4 md:left-16 md:right-16 lg:left-32 lg:right-32 bg-white/70 backdrop-blur-sm leading-7 border-none opacity-85 py-2 sm:py-3 px-2 sm:px-4 rounded-xl">
+            <div className="absolute top-8 sm:top-12 md:top-16 left-2 right-2 sm:left-4 sm:right-4 md:left-16 md:right-16 lg:left-32 lg:right-32 bg-white/70 backdrop-blur-sm leading-7 border-none opacity-85 py-2 sm:py-3 px-2 sm:px-4 rounded-lg">
               <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-6 mx-auto text-[10px] sm:text-xs">
                 {/* Pickup */}
     <div className="flex flex-col items-center w-12 sm:w-16">
       <img src="/assets/icons/Pickup-unscreen.gif" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" alt="Pickup" />
-      <span className="font-semibold mt-1">Pickup</span>
+      <span className="font-semibold ">Pickup</span>
     </div>
 
     {/* Arrow */}
@@ -290,7 +234,7 @@ export default function Home() {
     {/* Wash */}
     <div className="flex flex-col items-center w-12 sm:w-16">
       <img src="/assets/icons/Wash-unscreen.gif" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" alt="Wash" />
-      <span className="font-semibold mt-1">Wash</span>
+      <span className="font-semibold ">Wash</span>
     </div>
 
     {/* Arrow */}
@@ -301,7 +245,7 @@ export default function Home() {
     {/* Iron */}
     <div className="flex flex-col items-center w-12 sm:w-16">
       <img src="/assets/icons/Iron-unscreen.gif" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" alt="Iron" />
-      <span className="font-semibold mt-1">Iron</span>
+      <span className="font-semibold ">Iron</span>
     </div>
 
     {/* Arrow */}
@@ -312,7 +256,7 @@ export default function Home() {
     {/* Pack */}
     <div className="flex flex-col items-center w-12 sm:w-16">
       <img src="/assets/icons/Pack-unscreen.gif" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" alt="Pack" />
-      <span className="font-semibold mt-1">Pack</span>
+      <span className="font-semibold ">Pack</span>
     </div>
 
     {/* Arrow */}
@@ -323,7 +267,7 @@ export default function Home() {
     {/* Delivery */}
     <div className="flex flex-col items-center w-14 sm:w-20">
       <img src="/assets/icons/Delivery-unscreen.gif" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" alt="Delivery" />
-      <span className="font-semibold mt-1">Delivery</span>
+      <span className="font-semibold ">Delivery</span>
     </div>
               </div>
             </div>
@@ -332,7 +276,7 @@ export default function Home() {
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-2">
               <Button
                 onClick={handleOrderNow}
-                className="bg-[#003262] hover:bg-[#003262] text-white px-6 sm:px-8 py-2 rounded-md font-semibold shadow-lg text-sm sm:text-base"
+                className="bg-[#003262] hover:bg-[#003262] text-white px-6 sm:px-8 py-2 rounded-full font-semibold shadow-lg text-sm sm:text-base"
               >
                 Order Now
               </Button>
@@ -375,7 +319,7 @@ export default function Home() {
                     <div className="flex-1 flex flex-col gap-2">
                       {displayItems.map((item, idx) => (
                         <div key={idx} className="flex justify-between items-center gap-2">
-                          <span className="flex-1 text-left text-gray-700 text-xs sm:text-sm truncate">
+                          <span className="flex-1 text-left text-gray-900 text-xs sm:text-sm truncate">
                             {item.name}
                           </span>
                           <span className="font-semibold text-[#003269] text-xs sm:text-sm flex-shrink-0">
