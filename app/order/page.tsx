@@ -9,8 +9,9 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import Link from "next/link"
+import Header from "@/components/header"
 
-const serviceTypes = ["Wash & Fold", "Ironing Only", "Dry Cleaning", "Wash & Iron"]
+const serviceTypes = ["Baskets", "Basket Iron Only", "Ladies' Wear", "Men's Wear", "Blankets/Duvet inners", " Beddings", "Curtains", "Others"]
 
 const softenerFlavors = ["Lavender", "Fresh Linen", "Ocean Breeze", "No Preference"]
 
@@ -30,12 +31,18 @@ export default function OrderPage() {
   })
 
   useEffect(() => {
-    // Check if user is authenticated
-    const token = localStorage.getItem("userToken")
-    if (!token) {
-      router.push("/login")
-    }
-  }, [router])
+  const getCookie = (name: string) => {
+    const value = `; ${document.cookie}`
+    const parts = value.split(`; ${name}=`)
+    if (parts.length === 2) return parts.pop()?.split(';').shift()
+  }
+
+  const token = getCookie("userToken")
+  if (!token) {
+    router.push("/login?redirect=/order") // send user to login, store redirect
+  }
+}, [router])
+
 
   const handleChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value })
@@ -50,34 +57,82 @@ export default function OrderPage() {
   }
 
   const handleSubmit = async () => {
-    setLoading(true)
+  /*setLoading(true);
 
-    try {
-      // TODO: Integrate with Oxygen ERP API to create Sales Order
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+  try {
+    // 1. Get token from cookie
+    const getCookie = (name: string) => {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop()?.split(";").shift();
+    };
 
-      console.log("[v0] Order submitted:", formData)
-      router.push("/my-orders?success=true")
-    } catch (error) {
-      console.error("[v0] Order submission error:", error)
-      alert("Failed to submit order. Please try again.")
-    } finally {
-      setLoading(false)
+    const token = getCookie("userToken");
+    if (!token) {
+      alert("You must be logged in to place an order.");
+      router.push("/login?redirect=/order");
+      return;
     }
-  }
+
+    // 2. Build order payload using YOUR form fields
+    const orderPayload = {
+      serviceType: formData.serviceType,
+      itemCount: Number(formData.itemCount),
+      weight: Number(formData.weight),
+      softenerFlavor: formData.softenerFlavor,
+      specialInstructions: formData.specialInstructions,
+      pickupAddress: formData.pickupAddress,
+      pickupDate: formData.pickupDate,
+      pickupTime: formData.pickupTime,
+    };
+
+    // 3. Send to Oxygen ERP API endpoint
+    const baseUrl = "https://staging.oxygen.siskusserver.com/api";
+    
+    const response = await fetch(`${baseUrl}/sales-order/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // CRITICAL
+      },
+      body: JSON.stringify(orderPayload),
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      alert(data.message || "Failed to submit order.");
+      return;
+    }*/
+
+    // 4. Success → Redirect to My Orders
+    //router.push("/my-orders?success=true");
+    router.push("/my-orders");
+
+  /*} catch (error) {
+    console.error("Order submission error:", error);
+    alert("Failed to submit order. Please try again.");
+  } finally {
+    setLoading(false);
+  }*/
+};
+
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#5B9DD1] to-[#7AB7E8] p-4 py-8">
-      <div className="max-w-2xl mx-auto">
-        <Card className="p-6 sm:p-8 shadow-md shadow-gray-400/30">
-          <div className="mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#003262] mb-2">Place Your Order</h1>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <span className={step >= 1 ? "text-[#408ac8] font-semibold" : ""}>Step 1</span>
+    <div className="min-h-screen bg-gray-200 flex items-center justify-center p-4">
+
+      <Header />
+        
+        <Card className="w-full max-w-2xl p-6 sm:p-8 mt-20 sm:mt-22 md:mt-24 shadow-[0_15px_40px_rgba(0,0,0,0.25)]">
+
+          <div className="mb-6 flex flex-col items-center">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#003262] mb-6">Place Your Order</h1>
+            <div className="flex items-center gap-6 lg:gap-10 text-sm text-gray-8m,00">
+              <span className={step >= 1 ? "text-[#09943d] font-semibold" : ""}>Step 1</span>
               <span>→</span>
-              <span className={step >= 2 ? "text-[#408ac8] font-semibold" : ""}>Step 2</span>
+              <span className={step >= 2 ? "text-[#09943d] font-semibold" : ""}>Step 2</span>
               <span>→</span>
-              <span className={step >= 3 ? "text-[#408ac8] font-semibold" : ""}>Step 3</span>
+              <span className={step >= 3 ? "text-[#09943d] font-semibold" : ""}>Step 3</span>
             </div>
           </div>
 
@@ -145,9 +200,10 @@ export default function OrderPage() {
                 </Select>
               </div>
 
-              <Button onClick={handleNext} className="w-full bg-[#408ac8] hover:bg-[#3678af]">
+               <Button onClick={handleNext} className="w-full bg-[#003262] text-white hover:bg-[#003262] active:bg-[#003262]"> 
                 Next
-              </Button>
+               </Button>
+
             </div>
           )}
 
@@ -167,11 +223,12 @@ export default function OrderPage() {
                 />
               </div>
 
+
               <div className="flex gap-3">
-                <Button onClick={handleBack} variant="outline" className="flex-1 bg-transparent">
+                <Button onClick={handleBack} className="flex-1 bg-[#408ac8] text-white hover:bg-[#408ac8]  border-none shadow-none">
                   Back
                 </Button>
-                <Button onClick={handleNext} className="flex-1 bg-[#408ac8] hover:bg-[#3678af]">
+                <Button onClick={handleNext} className="flex-1 bg-[#003262] text-white hover:bg-[#003262] active:bg-[#003262] border-none shadow-none">
                   Next
                 </Button>
               </div>
@@ -218,23 +275,16 @@ export default function OrderPage() {
               </div>
 
               <div className="flex gap-3">
-                <Button onClick={handleBack} variant="outline" className="flex-1 bg-transparent">
+                <Button onClick={handleBack} className="flex-1 bg-[#408ac8] text-white hover:bg-[#408ac8] border-none shadow-none">
                   Back
                 </Button>
-                <Button onClick={handleSubmit} className="flex-1 bg-[#408ac8] hover:bg-[#3678af]" disabled={loading}>
+                <Button onClick={handleSubmit} className="flex-1 bg-[#003262] hover:bg-[#003262]" disabled={loading}>
                   {loading ? "Submitting..." : "Submit Order"}
                 </Button>
               </div>
             </div>
           )}
         </Card>
-
-        <div className="mt-6 text-center">
-          <Link href="/" className="text-white hover:underline text-sm">
-            ← Back to Home
-          </Link>
-        </div>
-      </div>
     </div>
   )
 }
