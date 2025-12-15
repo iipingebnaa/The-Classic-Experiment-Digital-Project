@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import Link from "next/link"
 import Header from "@/components/header"
 
 const serviceTypes = ["Baskets", "Basket Iron Only", "Ladies' Wear", "Men's Wear", "Blankets/Duvet inners", " Beddings", "Curtains", "Others"]
@@ -57,10 +56,10 @@ export default function OrderPage() {
   }
 
   const handleSubmit = async () => {
-  /*setLoading(true);
+  setLoading(true);
 
-  try {
-    // 1. Get token from cookie
+  /*try {
+    // Get token from cookie
     const getCookie = (name: string) => {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
@@ -74,7 +73,7 @@ export default function OrderPage() {
       return;
     }
 
-    // 2. Build order payload using YOUR form fields
+    // Build order payload using order form fields
     const orderPayload = {
       serviceType: formData.serviceType,
       itemCount: Number(formData.itemCount),
@@ -86,36 +85,70 @@ export default function OrderPage() {
       pickupTime: formData.pickupTime,
     };
 
-    // 3. Send to Oxygen ERP API endpoint
+    // Send to Oxygen ERP API endpoint
     const baseUrl = "https://staging.oxygen.siskusserver.com/api";
-    
-    const response = await fetch(`${baseUrl}/sales-order/create`, {
+    const response = await fetch(`${baseUrl}/sales_order`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // CRITICAL
+        Authorization: `Bearer ${token}`, // user token in header
       },
       body: JSON.stringify(orderPayload),
     });
 
     const data = await response.json();
 
-    if (!data.success) {
+    if (!response.ok || !data.success) {
       alert(data.message || "Failed to submit order.");
       return;
-    }*/
+    }
 
-    // 4. Success → Redirect to My Orders
-    //router.push("/my-orders?success=true");
-    router.push("/my-orders");
+    // Success → Redirect to My Orders
+    router.push("/my-orders?success=true");
 
-  /*} catch (error) {
+  } catch (error) {
     console.error("Order submission error:", error);
     alert("Failed to submit order. Please try again.");
   } finally {
     setLoading(false);
   }*/
+
+//temporary handlesubmit for testing purpose without API integration
+  try {
+    // Build order payload using form fields
+    const newOrder = {
+        id: Date.now(), // simple unique id
+        serviceType: formData.serviceType,
+        itemCount: formData.itemCount,
+        weight: formData.weight,
+        softenerFlavor: formData.softenerFlavor,
+        specialInstructions: formData.specialInstructions,
+        pickupAddress: formData.pickupAddress,
+        pickupDate: formData.pickupDate,
+        pickupTime: formData.pickupTime,
+        status: "Not Started",
+        price: `N$${Number(formData.itemCount || 0) * 10}` // simple placeholder price calculation
+      };
+
+    // Get existing orders from localStorage
+    const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]");
+
+    // Add the new order at the start
+    localStorage.setItem("orders", JSON.stringify([newOrder, ...existingOrders]));
+
+    // Redirect to My Orders page
+    router.push("/my-orders?success=true");
+  } catch (error) {
+    console.error("Order submission error:", error);
+    alert("Failed to submit order. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+
+
+
 };
+
 
 
   return (
