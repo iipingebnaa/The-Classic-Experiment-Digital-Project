@@ -29,6 +29,24 @@ export default function OrderPage() {
   })
   const [editOrderId, setEditOrderId] = useState<number | null>(null)
 
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [stepError, setStepError] = useState(""); // New single error message
+
+
+  useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const editId = params.get("edit");
+  if (editId) {
+    const savedOrders = JSON.parse(localStorage.getItem("orders") || "[]");
+    const orderToEdit = savedOrders.find((o: any) => o.id === Number(editId));
+    if (orderToEdit) {
+      setFormData({...orderToEdit});//spreads existing order data
+      setEditOrderId(orderToEdit.id);
+    }
+  }
+}, []);
+
+
   // Get token from cookie
   const getCookie = (name: string) => {
     const value = `; ${document.cookie}`
@@ -47,11 +65,35 @@ export default function OrderPage() {
     setFormData({ ...formData, [field]: value })
   }
 
-  const handleNext = () => { if (step < 3) setStep(step + 1) }
+  const handleNext = () => {
+  if (step === 1) {
+    // Check all required fields in step 1
+    const { serviceType, itemCount, weight, softenerFlavor } = formData;
+    if (!serviceType || !itemCount || !weight || !softenerFlavor) {
+      setStepError("Please fill in all fields!");
+      return; // Stop moving to next step
+    }
+  }
+
+  // Clear previous error
+  setStepError("");
+  if (step < 3) setStep(step + 1);
+};
+
+
+
   const handleBack = () => { if (step > 1) setStep(step - 1) }
 
   // Submit new order
   const handleSubmit = async () => {
+  // Step 3 required fields
+  const { pickupAddress, pickupDate, pickupTime } = formData;
+  if (!pickupAddress || !pickupDate || !pickupTime) {
+    setStepError("Please fill in all fields!");
+    return; // Stop submission
+  }
+
+   setErrors({})
     setLoading(true)
 
     try {
@@ -67,7 +109,7 @@ export default function OrderPage() {
         // TODO: Replace with PUT /sales_order/{order_id}
         /*
         const token = getCookie("userToken")
-        const response = await fetch(`https://staging.oxygen.siskusserver.com/api/sales_order/${editOrderId}`, {
+        const response = await fetch(`https://staging.oxygen.siskusserver.com/api/sales_order/${OrderId}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -118,7 +160,6 @@ export default function OrderPage() {
       router.push("/my-orders?success=true")
     } catch (error) {
       console.error("Order submission error:", error)
-      alert("Failed to submit order. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -154,6 +195,7 @@ export default function OrderPage() {
                   {serviceTypes.map((type) => <SelectItem key={type} value={type}>{type}</SelectItem>)}
                 </SelectContent>
               </Select>
+              {errors.serviceType && <p className="text-red-600 text-sm mt-1">{errors.serviceType}</p>}
             </div>
 
             <div>
@@ -166,6 +208,7 @@ export default function OrderPage() {
                 onChange={(e) => handleChange("itemCount", e.target.value)}
                 className="mt-1"
               />
+              {errors.itemCount && <p className="text-red-600 text-sm mt-1">{errors.itemCount}</p>}
             </div>
 
             <div>
@@ -178,6 +221,7 @@ export default function OrderPage() {
                 onChange={(e) => handleChange("weight", e.target.value)}
                 className="mt-1"
               />
+              {errors.weight && <p className="text-red-600 text-sm mt-1">{errors.weight}</p>}
             </div>
 
             <div>
@@ -190,6 +234,8 @@ export default function OrderPage() {
                   {softenerFlavors.map((flavor) => <SelectItem key={flavor} value={flavor}>{flavor}</SelectItem>)}
                 </SelectContent>
               </Select>
+              {stepError && <p className="text-red-600 text-sm mt-4">{stepError}</p>}
+
             </div>
 
             <Button onClick={handleNext} className="w-full bg-[#003262] text-white hover:bg-[#003262] active:bg-[#003262]">Next</Button>
@@ -231,6 +277,7 @@ export default function OrderPage() {
                 onChange={(e) => handleChange("pickupAddress", e.target.value)}
                 className="mt-1"
               />
+              
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -253,6 +300,7 @@ export default function OrderPage() {
                   className="mt-1"
                 />
               </div>
+              {stepError && <p className="text-red-600 text-sm mt-1 inline-block whitespace-nowrap">{stepError}</p>}
             </div>
 
             <div className="flex gap-3">
