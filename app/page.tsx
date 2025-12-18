@@ -182,7 +182,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-b from-[#70A3C4] to-[#9ECAE1]" id="home">
+      <div className="min-h-screen bg-gray-300" id="home">
         
         {/* Service Worker */}
         <ServiceWorkerRegister onUpdateFound={() => setShowUpdateButton(true)} />
@@ -293,21 +293,21 @@ export default function Home() {
 
         {/* Pricing Cards */}
         <div className="px-4 pb-6 pt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-5 md:gap-6">
             {pricingData.map((category, index) => {
               const isExpanded = expandedCard === index
-              const displayItems = isExpanded ? category.items : category.items.slice(0, 5)
+              const displayItems = isExpanded ? category.items : category.items.slice(0, 3)
 
               return (
                 <Card
                   key={index}
-                  className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300 p-0 flex flex-col h-full gap-px"
+                  className="bg-white rounded-lg overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.6)] hover:-translate-y-2 transition-all duration-300 p-0 flex flex-col h-full gap-px"
                 >
                   <div className="relative h-48 sm:h-52 md:h-56 overflow-hidden">
                     <img
                       src={category.image || "/placeholder.svg"}
                       alt={category.title}
-                      className="w-full object-cover rounded-b-lg h-full"
+                      className="w-full object-cover rounded-b-lg h-full "
                     />
                   </div>
 
