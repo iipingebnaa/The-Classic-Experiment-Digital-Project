@@ -21,18 +21,17 @@ export default function ContactSection() {
         </h2>
 
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-stretch">
           {/* Map Section */}
-          <div className="flex flex-col ">
-            <div className="w-full h-48 sm:h-64 lg:h-96 rounded-lg overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.4)] mb-3 sm:mb-4 ">
+          <div className="flex flex-col h-full">
+            <div className="flex-1 w-ful rounded-lg overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.4)] mb-3 sm:mb-4 ">
               <iframe
-  src="https://www.google.com/maps?q=-22.565115,17.070159&hl=es;z=17&output=embed"
-  width="100%"
-  height="100%"
-  style={{ border: 0 }}
-  allowFullScreen
-  loading="lazy"
-/>
+                src="https://www.google.com/maps?q=-22.565115,17.070159&hl=es;z=17&output=embed"
+                className="w-full h-full"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+              />
 
 
             </div>
@@ -49,8 +48,9 @@ export default function ContactSection() {
 
 
           {/* Contact Info Card */}
-          <div className="flex flex-col">
-            <Card className="p-4 sm:p-6 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+          <div className="flex flex-col h-full">
+            <Card className="flex-1 p-4 sm:p-6 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+
               <h3 className="text-lg sm:text-xl font-bold text-[#003262] mb-1 sm:mb-1">Contact Information</h3>
 
               <div className="space-y-4 sm:space-y-4">
