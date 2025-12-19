@@ -114,8 +114,8 @@ export default function MyOrders() {
     <div className="min-h-screen bg-gray-200">
       <Header />
 
-      <div className="pt-20 px-4 md:px-12">
-        <h2 className="text-2xl font-bold text-[#003262] mb-4">My Orders</h2>
+      <div className="pt-24 md:pt-32 px-4 md:px-12">
+        <h2 className="text-2xl font-bold text-[#003262] mb-6">My Orders</h2>
 
         <div className="mb-6 text-center">
           <Link href="/order">
