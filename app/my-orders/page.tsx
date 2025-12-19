@@ -111,7 +111,7 @@ export default function MyOrders() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-200">
+    <div className="min-h-screen bg-gray-300">
       <Header />
 
       <div className="pt-24 md:pt-32 px-4 md:px-12">
@@ -133,7 +133,7 @@ export default function MyOrders() {
             return (
               <Card
                 key={order.id}
-                className="p-3 flex flex-col gap-2 shadow-[0_15px_20px_rgba(0,0,0,0.25)] text-sm sm:text-base"
+                className="p-3 flex flex-col gap-2 shadow-[0_0_20px_rgba(0,0,0,0.3)] text-sm sm:text-base"
               >
                 {!isExpanded && (
                   <>
