@@ -23,8 +23,8 @@ export default function ContactSection() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
           {/* Map Section */}
-          <div className="flex flex-col">
-            <div className="w-full h-48 sm:h-64 lg:h-96 rounded-lg overflow-hidden shadow-lg mb-3 sm:mb-4">
+          <div className="flex flex-col ">
+            <div className="w-full h-48 sm:h-64 lg:h-96 rounded-lg overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.4)] mb-3 sm:mb-4 ">
               <iframe
   src="https://www.google.com/maps?q=-22.565115,17.070159&hl=es;z=17&output=embed"
   width="100%"
@@ -50,18 +50,17 @@ export default function ContactSection() {
 
           {/* Contact Info Card */}
           <div className="flex flex-col">
-            <Card className="p-4 sm:p-6 shadow-lg">
-              <h3 className="text-lg sm:text-xl font-bold text-[#003262] mb-4 sm:mb-6">Contact Information</h3>
+            <Card className="p-4 sm:p-6 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+              <h3 className="text-lg sm:text-xl font-bold text-[#003262] mb-1 sm:mb-1">Contact Information</h3>
 
-
-              <div className="space-y-4 sm:space-y-6">
+              <div className="space-y-4 sm:space-y-4">
                 <div className="flex items-start gap-3 sm:gap-4">
                   <div className="bg-[#408ac8] p-2 sm:p-3 rounded-full flex-shrink-0">
                     <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Phone</h4>
-                    <p className="text-gray-600 sm:text-sm text-sm">+264 81 338 8933</p>
+                    <p className="text-gray-800 sm:text-sm text-sm">+264 81 338 8933</p>
                   </div>
                 </div>
 
@@ -72,7 +71,7 @@ export default function ContactSection() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Email</h4>
-                    <p className="text-gray-600 break-words text-sm">info@scc-laundry.com</p>
+                    <p className="text-gray-800 break-words text-sm">info@scc-laundry.com</p>
                   </div>
                 </div>
 
@@ -83,8 +82,8 @@ export default function ContactSection() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Address</h4>
-                    <p className="text-gray-600 sm:text-sm text-sm">1861 John Meinert Street</p>
-                    <p className="text-gray-600 sm:text-sm text-sm">Windhoek, Namibia</p>
+                    <p className="text-gray-800 sm:text-sm text-sm">1861 John Meinert Street</p>
+                    <p className="text-gray-800 sm:text-sm text-sm">Windhoek, Namibia</p>
                   </div>
                 </div>
 
@@ -95,8 +94,8 @@ export default function ContactSection() {
                   </div>
                   <div>
                     <h4 className="font-semibold text-gray-900 mb-1 text-sm sm:text-base">Working Hours</h4>
-                    <p className="text-gray-600 sm:text-sm lg:text-base text-sm">Monday - Saturday: 8:00 AM - 19:00 PM</p>
-                    <p className="text-gray-600 sm:text-sm lg:text-base text-sm">Sunday: Closed</p>
+                    <p className="text-gray-800 sm:text-sm sm:text-sm text-sm">Monday - Saturday: 8:00 AM - 19:00 PM</p>
+                    <p className="text-gray-800 sm:text-sm sm:text-sm text-sm">Sunday: Closed</p>
                   </div>
                 </div>
               </div>
