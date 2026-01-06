@@ -2,10 +2,15 @@
 
 import { useState, useEffect } from "react"
 import { Menu, X, Home, Phone, Archive, LogIn, UserPlus, LogOut } from "lucide-react"
+import UnderConstructionOverlay from "./UnderConstructionOverlay"
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  const [underConstruction, setUnderConstruction] = useState(false)
+  const triggerUnderConstruction = () => setUnderConstruction(true)
+  const closeUnderConstruction = () => setUnderConstruction(false)
 
   function getCookie(name: string) {
     if (typeof document === "undefined") return null
@@ -56,6 +61,12 @@ const handleScrollOrNavigate = (sectionId?: string) => {
 
   return (
     <>
+
+    <UnderConstructionOverlay
+      open={underConstruction}
+      onClose={closeUnderConstruction}
+    />
+
       {/* Fixed Header */}
       <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm z-50 px-6 md:px-12 flex items-center justify-between shadow-sm h-16 md:h-20">
         {/* Logo */}
@@ -99,7 +110,8 @@ const handleScrollOrNavigate = (sectionId?: string) => {
 
           {!isLoggedIn && (
             <>
-              <a onClick={() => navigate("/login")} className="text-[#003262] font-medium hover:underline cursor-pointer">
+             {/*
+             <a onClick={() => navigate("/login")} className="text-[#003262] font-medium hover:underline cursor-pointer">
                 Login
               </a>
               <a
@@ -108,6 +120,21 @@ const handleScrollOrNavigate = (sectionId?: string) => {
               >
                 Sign Up
               </a>
+              */}
+
+              <a
+                onClick={triggerUnderConstruction}
+                className="text-[#003262] font-medium hover:underline cursor-pointer"
+              >
+                Login
+              </a>
+              <a
+                onClick={triggerUnderConstruction}
+                className="bg-[#003262] text-white px-4 py-2 rounded-full font-medium shadow-md hover:brightness-110 cursor-pointer"
+              >
+      Sign Up
+    </a>
+            
             </>
           )}
 
@@ -172,6 +199,7 @@ const handleScrollOrNavigate = (sectionId?: string) => {
 
               {!isLoggedIn && (
                 <>
+                {/*
                   <button
                     onClick={() => navigate("/login")}
                     className="flex items-center gap-2 px-2 py-2 text-gray-700 hover:bg-gray-100 rounded"
@@ -187,6 +215,31 @@ const handleScrollOrNavigate = (sectionId?: string) => {
                     <UserPlus className="w-4" />
                     Sign Up
                   </button>
+                  */}
+
+                  <button
+  onClick={() => {
+    triggerUnderConstruction()
+    setMenuOpen(false)
+  }}
+  className="flex items-center gap-2 px-2 py-2 text-gray-700 hover:bg-gray-100 rounded"
+>
+  <LogIn className="w-4" />
+  Login
+</button>
+
+<button
+  onClick={() => {
+    triggerUnderConstruction()
+    setMenuOpen(false)
+  }}
+  className="flex items-center gap-2 px-2 py-2 text-gray-700 hover:bg-gray-100 rounded"
+>
+  <UserPlus className="w-4" />
+  Sign Up
+</button>
+
+
                 </>
               )}
 

@@ -8,6 +8,7 @@ import ContactSection from "@/components/contact-section"
 import WhatsAppButton from "@/components/whatsapp-button"
 import { useRouter } from "next/navigation"
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister"
+import UnderConstructionOverlay from "@/components/UnderConstructionOverlay"
 
 export default function Home() {
   const router = useRouter()
@@ -22,10 +23,15 @@ export default function Home() {
   const triggerUnderConstruction = () => setUnderConstruction(true)
   const closeUnderConstruction = () => setUnderConstruction(false)
 
-  const handleOrderNow = () => {
+  /*const handleOrderNow = () => {
     
     router.push("/order") 
-  }
+  }*/
+
+  const handleOrderNow = () => {
+  triggerUnderConstruction()
+}
+
 
   // Detect if app is installed
   const isAppInstalled = () => {
@@ -190,6 +196,11 @@ export default function Home() {
         <Header />
 
         <WhatsAppButton /> 
+
+        <UnderConstructionOverlay
+          open={underConstruction}
+          onClose={closeUnderConstruction}
+        />
 
         {/* Hero Section */}
         <div className="pt-16">
@@ -377,7 +388,7 @@ export default function Home() {
           {!showUpdateButton && showInstallButton && (
             <Button
               onClick={handleInstallApp}
-              className="bg-[#003262] text-white px-6 py-2 rounded-full font-semibold hover:brightness-110"
+              className="bg-[#003262] text-white hover:bg-[#003262] hover:brightness-110 active:brightness-110 transition-all duration-300 px-6 sm:px-8 py-2 rounded-full font-semibold text-sm sm:text-base"
             >
               Download App
             </Button>
@@ -386,7 +397,7 @@ export default function Home() {
           {showUpdateButton && (
             <Button
               onClick={handleUpdateApp}
-              className="bg-[#003262] text-white px-6 py-2 rounded-full font-semibold hover:brightness-110"
+              className="bg-[#003262] text-white hover:bg-[#003262] hover:brightness-110 active:brightness-110 transition-all duration-300 px-6 sm:px-8 py-2 rounded-full font-semibold text-sm sm:text-base"
             >
               Update App
             </Button>
