@@ -1,0 +1,5 @@
+{
+  "success": true,
+  "message": "Login successful",
+  "token": "mock-jwt-token"
+}
