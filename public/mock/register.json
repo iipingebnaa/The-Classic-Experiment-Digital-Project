@@ -1,0 +1,8 @@
+{
+  "success": true,
+  "message": "User registered successfully",
+  "data": {
+    "id": 123,
+    "username": "testuser"
+  }
+}
