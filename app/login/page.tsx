@@ -32,6 +32,7 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
+      
     // API call
     const baseUrl = "https://staging.oxygen.siskusserver.com/api"; // staging URL
     const response = await fetch(`${baseUrl}/login`, {
@@ -41,10 +42,16 @@ export default function LoginPage() {
         username: username.trim(),  // API expects "username"
         password: password.trim()
       }),
-    });
+    }); 
 
     const data = await response.json();
-
+    
+   /*
+    // MOCK API response for frontend testing
+    const Response = await fetch("/mock/login.json");
+    const data = await Response.json();
+    */
+   
     if (!data.success) {
     setError(data.message || "Username or password is incorrect");
     return;
@@ -71,7 +78,7 @@ router.push(redirectTo);
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-6 sm:p-8 shadow-[0_15px_40px_rgba(0,0,0,0.25)]">
+      <Card className="w-full max-w-md p-6 sm:p-16 shadow-[0_15px_40px_rgba(0,0,0,0.25)]">
         <div className="mb-2 text-center">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#003262] mb-2">Welcome Back</h1>
         </div>
