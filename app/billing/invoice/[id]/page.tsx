@@ -81,73 +81,77 @@ export default function InvoicePage() {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4 sm:p-2">
       <Header />
-      <Card className="w-full max-w-md p-4 sm:p-8 bg-white shadow-[0_15px_40px_rgba(0,0,0,0.25)]">
+      <div className="pt-20 flex justify-center">
+      <Card className="w-full max-w-md p-4 bg-white rounded-none shadow-[0_15px_40px_rgba(0,0,0,0.25)]">
         {/* HEADER */}
-        <div className="flex justify-between items-start mb-8">
+        <div className="flex justify-between items-start mb-8 ">
           <div className="flex items-center h-full">
           <img
             src="/assets/ccl.logo.png"
             alt="Classic Clean Laundry Logo"
-            className="object-contain w-24 h-24 md:w-24 md:h-24"
+            className="object-contain w-28 h-28 md:w-24 md:h-24 "
           />
         </div>
 
-          <div className="text-right text-sm">
-            <p className="font-semibold text-[#2c78bf] text-lg mb-2">
-              {invoice.company.name}
+          <div className="text-right ">
+            <p className="font-semibold text-[#2c78bf] text-md mb-2">
+              {invoice.company.name} 
             </p>
-            <p>{invoice.company.location}</p>
-            <p>{invoice.company.phone}</p>
-            <p>{invoice.company.email}</p>
+            <p className="text-right text-sm md:text-sm">{invoice.company.location}</p>
+            <p className="text-right text-sm md:text-sm">{invoice.company.phone}</p>
+            <p className="text-right text-sm md:text-sm">{invoice.company.email}</p>
           </div>
         </div>
 
-        <hr className="mb-8" />
+        <hr className="mb-2" />
 
         {/* BILL TO + META */}
         <div className="flex justify-between mb-10">
           <div>
             <p className="text-[#2c78bf] font-semibold mb-2">BILL TO:</p>
-            <p className="font-semibold">{invoice.billTo.name}</p>
+            <p className="font-semibold text-sm">{invoice.billTo.name}</p>
             <p className="text-sm">{invoice.billTo.phone}</p>
           </div>
 
-          <div className="text-right text-sm">
-            <p className="text-[#2c78bf] font-semibold text-xl mb-2">INVOICE</p>
-            <p><strong>Invoice #:</strong> {invoice.meta.invoiceNumber}</p>
-            <p><strong>Invoice date:</strong> {invoice.meta.invoiceDate}</p>
-            <p><strong>Invoice due:</strong> {invoice.meta.dueDate}</p>
+          <div className="text-right">
+            <p className="text-[#2c78bf] font-semibold text-md mb-2">INVOICE</p>
+            <p className="text-right text-sm md:text-sm" ><strong>Invoice #:</strong> {invoice.meta.invoiceNumber}</p>
+            <p className="text-right text-sm md:text-sm"><strong>Invoice date:</strong> {invoice.meta.invoiceDate}</p>
+            <p className="text-right text-sm md:text-sm"><strong>Invoice due:</strong> {invoice.meta.dueDate}</p>
           </div>
         </div>
 
-        {/* TABLE — UNCHANGED */}
-        <div className="border rounded-md overflow-hidden mb-8">
-          <div className="grid grid-cols-12 bg-gray-100 px-4 py-3 font-semibold text-sm">
-            <div className="col-span-1">#</div>
-            <div className="col-span-5">Description</div>
+        {/* TABLE*/}
+        <div className="-mx-2 sm:-mx-2">
+        <div className="border rounded-none overflow-hidden mb-8">
+          <div className="grid grid-cols-12 bg-gray-100 px-4 py-3 font-semibold text-xs md:text-sm">
+            <div className="col-span-1 text-left">#</div>
+            <div className="col-span-4 text-left">Description</div>
             <div className="col-span-2 text-center">Qty</div>
             <div className="col-span-2 text-right">Unit Price</div>
-            <div className="col-span-2 text-right">Total</div>
+            <div className="col-span-3 text-right">Total</div>
           </div>
 
           {invoice.items.map((item: any, index: number) => (
             <div
               key={index}
-              className="grid grid-cols-12 px-4 py-4 border-t text-sm"
-            >
+              className="grid grid-cols-12 px-2 py-2 border-t text-xs md:text-sm">
               <div className="col-span-1">{index + 1}</div>
-              <div className="col-span-5 whitespace-pre-line text-blue-700 font-medium">
+
+              <div className="col-span-4 whitespace-pre-line ">
                 {item.description}
               </div>
-              <div className="col-span-2 text-center">{item.qty}</div>
+
+              <div className="col-span-2 text-center px-2">{item.qty}</div>
               <div className="col-span-2 text-right">
                 N${item.unitPrice.toFixed(2)}
               </div>
-              <div className="col-span-2 text-right font-semibold">
+              <div className="col-span-3 text-right font-semibold">
                 N${item.total.toFixed(2)}
               </div>
             </div>
           ))}
+        </div>
         </div>
 
         {/* TOTALS */}
@@ -161,7 +165,7 @@ export default function InvoicePage() {
               <span>VAT (15%):</span>
               <span>N${invoice.tax.toFixed(2)}</span>
             </div>
-            <div className="border-t pt-2 flex justify-between font-bold text-lg">
+            <div className="border-t pt-2 flex justify-between font-semibold text-md">
               <span>Amount Due:</span>
               <span>N${invoice.amountDue.toFixed(2)}</span>
             </div>
@@ -180,12 +184,13 @@ export default function InvoicePage() {
         </div>
 
         <Button
-          className="mt-8 bg-[#003262] text-white"
+          className="mt-4 bg-[#003262] text-white"
           onClick={() => router.push(`/payment/${invoice.id}`)}
         >
           Pay Now
         </Button>
       </Card>
+      </div>
     </div>
   )
 }
