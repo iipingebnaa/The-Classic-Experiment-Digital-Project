@@ -78,6 +78,16 @@
   filter: brightness(0) invert(1);
 }
 
+@keyframes floatUp {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-140vh); /* float all the way up past the screen */
+  }
+}
+
+
 
 @theme inline {
   --font-sans: 'Geist', 'Geist Fallback';
@@ -128,3 +138,6 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+
