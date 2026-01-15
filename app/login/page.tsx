@@ -76,11 +76,18 @@ router.push(redirectTo);
   }
   }
 
-  return (
+  return (  
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-6 sm:p-16 shadow-[0_15px_40px_rgba(0,0,0,0.25)]">
+        <div className="flex items-center justify-center h-full">
+          <img
+            src="/assets/ccl.logo.png"
+            alt="Classic Clean Laundry Logo"
+            className="object-contain w-20 h-20 md:w-24 md:h-24 scale-190 mb-2"
+          />
+        </div>
         <div className="mb-2 text-center">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#003262] mb-2">Welcome Back</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#003262] mb-1">Welcome Back :)</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -110,7 +117,7 @@ router.push(redirectTo);
             />
             <button
               type="button"
-              className="absolute right-2 top-[50%] -translate-y-[10%] sm:-translate-y-[40%] text-gray-500"
+              className="absolute right-2 top-[50%] -translate-y-[10%] sm:-translate-y-[50%] text-gray-500"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
