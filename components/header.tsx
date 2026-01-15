@@ -68,7 +68,7 @@ const handleScrollOrNavigate = (sectionId?: string) => {
     />
 
       {/* Fixed Header */}
-      <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm z-50 px-6 md:px-12 flex items-center justify-between shadow-sm h-16 md:h-20">
+      <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm z-50 px-1 md:px-12 flex items-center justify-between shadow-sm h-16 md:h-20">
         {/* Logo */}
         <div className="flex items-center h-full">
           <img
@@ -110,7 +110,7 @@ const handleScrollOrNavigate = (sectionId?: string) => {
 
           {!isLoggedIn && (
             <>
-             {/*
+             
              <a onClick={() => navigate("/login")} className="text-[#003262] font-medium hover:underline cursor-pointer">
                 Login
               </a>
@@ -120,9 +120,9 @@ const handleScrollOrNavigate = (sectionId?: string) => {
               >
                 Sign Up
               </a>
-              */}
+              
 
-              <a
+              {/*<a
                 onClick={triggerUnderConstruction}
                 className="text-[#003262] font-medium hover:underline cursor-pointer"
               >
@@ -132,8 +132,9 @@ const handleScrollOrNavigate = (sectionId?: string) => {
                 onClick={triggerUnderConstruction}
                 className="bg-[#003262] text-white px-4 py-2 rounded-full font-medium shadow-md hover:brightness-110 cursor-pointer"
               >
-      Sign Up
-    </a>
+               Sign Up
+              </a>
+             */}
             
             </>
           )}
@@ -199,7 +200,7 @@ const handleScrollOrNavigate = (sectionId?: string) => {
 
               {!isLoggedIn && (
                 <>
-                {/*
+                
                   <button
                     onClick={() => navigate("/login")}
                     className="flex items-center gap-2 px-2 py-2 text-gray-700 hover:bg-gray-100 rounded"
@@ -215,30 +216,31 @@ const handleScrollOrNavigate = (sectionId?: string) => {
                     <UserPlus className="w-4" />
                     Sign Up
                   </button>
-                  */}
+                  
+
+                  {/*
+                  <button
+                    onClick={() => {
+                      triggerUnderConstruction()
+                      setMenuOpen(false)
+                    }}
+                    className="flex items-center gap-2 px-2 py-2 text-gray-700 hover:bg-gray-100 rounded"
+                  >
+                  <LogIn className="w-4" />
+                    Login
+                  </button>
 
                   <button
-  onClick={() => {
-    triggerUnderConstruction()
-    setMenuOpen(false)
-  }}
-  className="flex items-center gap-2 px-2 py-2 text-gray-700 hover:bg-gray-100 rounded"
->
-  <LogIn className="w-4" />
-  Login
-</button>
-
-<button
-  onClick={() => {
-    triggerUnderConstruction()
-    setMenuOpen(false)
-  }}
-  className="flex items-center gap-2 px-2 py-2 text-gray-700 hover:bg-gray-100 rounded"
->
-  <UserPlus className="w-4" />
-  Sign Up
-</button>
-
+                    onClick={() => {
+                     triggerUnderConstruction()
+                     setMenuOpen(false)
+                    }}
+                     className="flex items-center gap-2 px-2 py-2 text-gray-700 hover:bg-gray-100 rounded"
+                  >
+                  <UserPlus className="w-4" />
+                  Sign Up
+                  </button> 
+                  */}
 
                 </>
               )}
