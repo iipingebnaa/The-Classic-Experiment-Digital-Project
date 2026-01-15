@@ -24,17 +24,15 @@ export default function ContactSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-stretch">
           {/* Map Section */}
           <div className="flex flex-col h-full">
-            <div className="flex-1 w-ful rounded-lg overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.4)] mb-3 sm:mb-4 ">
-              <iframe
-                src="https://www.google.com/maps?q=-22.565115,17.070159&hl=es;z=17&output=embed"
-                className="w-full h-full"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
+            <div className="flex-1 w-full h-[320px] sm:h-[380px] rounded-lg overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.4)] mb-3 sm:mb-4">
+             <iframe
+               src="https://www.google.com/maps?q=-22.565115,17.070159&z=17&output=embed"
+               className="w-full h-full border-0"
+               loading="lazy"
+               referrerPolicy="no-referrer-when-downgrade"
               />
-
-
             </div>
+
             <Button
              onClick={openGoogleMaps}
                className="bg-[#003262] hover:bg-[#004b94] hover:backdrop-blur-md hover:shadow-lg active:bg-[#004b94] active:backdrop-blur-md active:shadow-lg transition-all duration-300 text-white py-2 rounded-full font-semibold text-sm sm:text-base sm:w-auto inline-flex items-center mx-0 px-6"
