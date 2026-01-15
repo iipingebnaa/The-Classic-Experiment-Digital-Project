@@ -1,5 +1,6 @@
 "use client"
 
+
 import { useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Card } from "@/components/ui/card"
@@ -8,20 +9,25 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 
+
 export default function ResetCodeVerificationPage() {
   const router = useRouter()
   const params = useSearchParams()
 
+
   // Retrieve email from forgot password redirect
   const email = params.get("email") || ""
+
 
   const [code, setCode] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+
 
     // Your backend returns a 6-digit password
     if (!/^\d{6}$/.test(code)) {
@@ -29,17 +35,20 @@ export default function ResetCodeVerificationPage() {
       return
     }
 
+
     // Store the temporary password for next step
     localStorage.setItem("tempResetCode", code)
     localStorage.setItem("resetEmail", email)
 
+
     router.push(`/reset-password?email=${encodeURIComponent(email)}`);
   }
+
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <Card className="w-full max-w-sm p-5 shadow-[0_15px_40px_rgba(0,0,0,0.25)]">
-        
+       
         <div className="mb-6">
   <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
     <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,7 +62,10 @@ export default function ResetCodeVerificationPage() {
   </p>
 </div>
 
+
 </div>
+
+
 
 
         <form onSubmit={handleSubmit} className="space-y-3 mt-3">
@@ -72,7 +84,9 @@ export default function ResetCodeVerificationPage() {
             />
           </div>
 
+
           {error && <p className="text-red-600 text-sm">{error}</p>}
+
 
           <Button
             type="submit"
@@ -83,11 +97,13 @@ export default function ResetCodeVerificationPage() {
           </Button>
         </form>
 
+
         <div className="mt-3 text-center text-sm">
           <Link href="/forgot-password" className="text-[#003262] hover:underline">
             Resend Code
           </Link>
         </div>
+
 
         <div className="mt-2">
           <Link
@@ -97,6 +113,7 @@ export default function ResetCodeVerificationPage() {
             ← Back to Login
           </Link>
         </div>
+
 
       </Card>
     </div>
