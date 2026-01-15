@@ -127,7 +127,7 @@ export default function OrderPage() {
         const newOrder = {
           id: Date.now(),
           ...formData,
-          status: "Not Started",
+          status: "Washing",
           price: `N$${Number(formData.itemCount || 0) * 10}`
         }
         const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]")
