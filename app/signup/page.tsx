@@ -147,6 +147,7 @@ export default function SignUpPage() {
 
     setLoading(true)
 
+    
     try {
       // **Send request to staging API**
       const requestBody = {
@@ -175,7 +176,29 @@ export default function SignUpPage() {
     } finally {
       setLoading(false)
     }
+    
+/*
+    try {
+  // MOCK fetch for UI testing
+  const response = await fetch("/mock/register.json")
+  const data = await response.json()
+
+  if (!data.success) {
+    setError(data.message || "Registration failed")
+    return
   }
+
+  // simulate redirect after successful registration
+  router.push("/login")
+} catch (err: any) {
+  setError(err.message || "Failed to create account. Please try again.")
+} finally {
+  setLoading(false)
+}
+  */
+
+  }
+
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
