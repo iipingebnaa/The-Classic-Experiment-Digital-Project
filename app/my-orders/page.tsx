@@ -189,6 +189,15 @@ export default function MyOrders() {
                     Edit Order
                   </Button>
                 )}
+
+                {/* View Invoice Button */}
+                  <Button 
+                    onClick={() => router.push(`/billing/invoice/${order.id}`)}
+                    className="bg-green-700 text-white hover:bg-green-700"
+                  >
+                    View Invoice
+                  </Button>
+
               </Card>
             )
           })}
