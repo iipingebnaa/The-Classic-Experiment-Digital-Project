@@ -310,7 +310,7 @@ export default function Home() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="px-4 pb-6 pt-4">
+        <div className="px-6 pb-6 pt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-5 md:gap-6">
             {pricingData.map((category, index) => {
               const isExpanded = expandedCard === index
@@ -319,9 +319,9 @@ export default function Home() {
               return (
                 <Card
                   key={index}
-                  className="bg-white rounded-lg overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.5)] hover:-translate-y-2 transition-all duration-300 p-0 flex flex-col h-full gap-px"
+                  className="bg-white rounded-lg overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.5)] hover:-translate-y-2 transition-all duration-300 p-0 flex flex-col h-[100%] gap-px"
                 >
-                  <div className="relative h-48 sm:h-52 md:h-56 overflow-hidden">
+                  <div className="relative h-36 sm:h-40 md:h-44 overflow-hidden">
                     <img
                       src={category.image || "/placeholder.svg"}
                       alt={category.title}
