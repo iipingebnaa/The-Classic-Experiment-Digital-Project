@@ -23,14 +23,14 @@ export default function Home() {
   const triggerUnderConstruction = () => setUnderConstruction(true)
   const closeUnderConstruction = () => setUnderConstruction(false)
 
-  /*const handleOrderNow = () => {
+  const handleOrderNow = () => {
     
     router.push("/order") 
-  }*/
+  }
 
-  const handleOrderNow = () => {
+  /*const handleOrderNow = () => {
   triggerUnderConstruction()
-}
+}*/
 
 
   // Detect if app is installed
@@ -88,16 +88,16 @@ export default function Home() {
       title: "Baskets",
       image: "/assets/images/white-laundry-basket-with-clean-clothes.png",
       items: [
-        { name: "1kg - 3kg Small Basket", price: "N$182" },
-        { name: "4kg - 7kg Medium Basket", price: "N$303" },
-        { name: "8kg - 10kg Large/big Basket", price: "N$424" },
+        { name: "1kg - 3kg Small Basket", price: "N$180" },
+        { name: "4kg - 7kg Medium Basket", price: "N$300" },
+        { name: "8kg - 10kg Large/big Basket", price: "N$425" },
       ],
     },
     {
       title: "Basket Iron Only",
       image: "/assets/images/steam-iron-pressing-clothes-in-laundry-basket.png",
       items: [
-        { name: "Small", price: "N$132" },
+        { name: "Small", price: "N$130" },
         { name: "Medium", price: "N$275" },
         { name: "Large", price: "N$330" },
       ],
@@ -107,19 +107,19 @@ export default function Home() {
       image: "/assets/images/women-s-clothing-laundry-items-hanging-neatly.jpg",
       items: [
         { name: "Shirt short sleeve", price: "N$17" },
-        { name: "Shirt long sleeve", price: "N$18" },
+        { name: "Shirt long sleeve", price: "N$20" },
         { name: "T-shirt", price: "N$15" },
-        { name: "Top", price: "N$12" },
-        { name: "Trouser/jeans", price: "N$22" },
-        { name: "Jersey", price: "N$22" },
-        { name: "Jacket", price: "N$41" },
-        { name: "Pullover/sweater", price: "N$17" },
-        { name: "Skirt", price: "N$14" },
-        { name: "Shorts", price: "N$13" },
-        { name: "Pyjamas (2pcs)", price: "N$12" },
-        { name: "Socks (per pair)", price: "N$8" },
-        { name: "Swimsuit", price: "N$18" },
-        { name: "Dress", price: "N$19" },
+        { name: "Top", price: "N$15" },
+        { name: "Trouser/jeans", price: "N$25" },
+        { name: "Jersey", price: "N$25" },
+        { name: "Jacket", price: "N$40" },
+        { name: "Pullover/sweater", price: "N$20" },
+        { name: "Skirt", price: "N$15" },
+        { name: "Shorts", price: "N$15" },
+        { name: "Pyjamas (2pcs)", price: "N$25" },
+        { name: "Socks (per pair)", price: "N$10" },
+        { name: "Swimsuit", price: "N$20" },
+        { name: "Dress", price: "N$20" },
       ],
     },
     {
@@ -127,68 +127,68 @@ export default function Home() {
       image: "/assets/images/men-s-clothing-shirts-and-pants-neatly-folded.jpg",
       items: [
         { name: "Shirt short sleeve", price: "N$17" },
-        { name: "Shirt long sleeve", price: "N$18" },
+        { name: "Shirt long sleeve", price: "N$20" },
         { name: "T-shirt", price: "N$15" },
-        { name: "Trouser/jean", price: "N$22" },
+        { name: "Trouser/jean", price: "N$25" },
         { name: "Shorts", price: "N$15" },
-        { name: "Vests/under pants", price: "N$12" },
-        { name: "Socks (pair)", price: "N$8" },
-        { name: "Pyjamas (2pcs)", price: "N$23" },
-        { name: "Jersey", price: "N$22" },
-        { name: "Jacket", price: "N$41" },
-        { name: "Sweater/pullover", price: "N$17" },
+        { name: "Vests/under pants", price: "N$15" },
+        { name: "Socks (pair)", price: "N$10" },
+        { name: "Pyjamas (2pcs)", price: "N$25" },
+        { name: "Jersey", price: "N$25" },
+        { name: "Jacket", price: "N$40" },
+        { name: "Sweater/pullover", price: "N$20" },
       ],
     },
     {
       title: "Blankets/Duvet inners",
       image: "/assets/images/cozy-blankets-and-duvet-inners-folded-on-shelf.webp",
       items: [
-        { name: "Single", price: "N$61" },
-        { name: "Double", price: "N$97" },
+        { name: "Single", price: "N$60" },
+        { name: "Double", price: "N$100" },
         { name: "Queen Comforters / king", price: "N$145" },
         { name: "Winter Blanket", price: "N$220" },
-        { name: "Hand towel", price: "N$12" },
-        { name: "Bath towel", price: "N$19" },
+        { name: "Hand towel", price: "N$15" },
+        { name: "Bath towel", price: "N$20" },
       ],
     },
     {
       title: "Beddings",
       image: "/assets/images/clean-bed-sheets-and-pillowcases-neatly-stacked.png",
       items: [
-        { name: "Throw (Medium)", price: "N$48" },
-        { name: "Heavy Throw", price: "N$73" },
-        { name: "Flat sheet / Fitted sheet", price: "N$33" },
-        { name: "Duvet cover", price: "N$33" },
-        { name: "Pillowcase", price: "N$11" },
-        { name: "Continental Pillow inner", price: "N$44" },
-        { name: "Standard Pillow inner", price: "N$33" },
+        { name: "Throw (Medium)", price: "N$50" },
+        { name: "Heavy Throw", price: "N$75" },
+        { name: "Flat sheet / Fitted sheet", price: "N$35" },
+        { name: "Duvet cover", price: "N$35" },
+        { name: "Pillowcase", price: "N$15" },
+        { name: "Continental Pillow inner", price: "N$45" },
+        { name: "Standard Pillow inner", price: "N$35" },
       ],
     },
     {
       title: "Others",
       image: "/assets/images/formal-suit-and-coat-hanging-on-rack.webp",
       items: [
-        { name: "Suit", price: "N$121" },
-        { name: "Winter Coat (Short)", price: "N$61" },
-        { name: "Winter Coat (Long)", price: "N$73" },
-        { name: "Blazer", price: "N$61" },
-        { name: "Graduation Gown", price: "N$121" },
-        { name: "Official Pants", price: "N$24" },
+        { name: "Suit", price: "N$120" },
+        { name: "Winter Coat (Short)", price: "N$60" },
+        { name: "Winter Coat (Long)", price: "N$75" },
+        { name: "Blazer", price: "N$60" },
+        { name: "Graduation Gown", price: "N$120" },
+        { name: "Official Pants", price: "N$25" },
       ],
     },
     {
       title: "Curtains",
       image: "/assets/images/clean-curtains-hanging-elegantly.jpg",
       items: [
-        { name: "Normal length", price: "N$36" },
-        { name: "Extra length", price: "N$61" },
+        { name: "Normal length", price: "N$35" },
+        { name: "Extra length", price: "N$60" },
       ],
     },
   ]
 
   return (
     <>
-      <div className="min-h-screen bg-gray-300" id="home">
+      <div className="min-h-screen bg-[#9ECAE1]" id="home">
         
         {/* Service Worker */}
         <ServiceWorkerRegister onUpdateFound={() => setShowUpdateButton(true)} />
@@ -212,21 +212,28 @@ export default function Home() {
             />
 
             {/* Bubbles */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-              {[...Array(12)].map((_, i) => (
-                <div
-                  key={i}
-                  className="bubble absolute rounded-full bg-white/30 backdrop-blur-sm border border-white/40"
-                  style={{
-                    width: `${Math.random() * 30 + 15}px`,
-                    height: `${Math.random() * 30 + 15}px`,
-                    left: `${Math.random() * 100}%`,
-                    animationDelay: `${Math.random() * 5}s`,
-                    animationDuration: `${Math.random() * 5 + 8}s`,
-                  }}
-                />
-              ))}
-            </div>
+            <div className="absolute inset-0 pointer-events-none">
+  {[...Array(18)].map((_, i) => {
+    const size = Math.random() * 20 + 15; // size in px
+    const delay = Math.random() * 1; // delay in seconds
+    const duration = Math.random() * 10 + 10; // duration in seconds
+    const left = Math.random() * 100; // horizontal position
+    return (
+      <div
+        key={i}
+        className="absolute rounded-full bg-white/50 border border-white/30"
+        style={{
+          width: `${size}px`,
+          height: `${size}px`,
+          left: `${left}%`,
+          bottom: `-${size}px`, // start just below the hero section
+          animation: `floatUp ${duration}s linear ${delay}s infinite`,
+          opacity: Math.random() * 0.6 + 0.3,
+        }}
+      />
+    )
+  })}
+</div>  
 
             {/* Process Flow */}
             <div className="absolute top-8 sm:top-12 md:top-16 left-2 right-2 sm:left-4 sm:right-4 md:left-16 md:right-16 lg:left-32 lg:right-32 bg-white/70 backdrop-blur-sm leading-7 border-none opacity-85 py-2 sm:py-3 px-2 sm:px-4 rounded-lg">
@@ -312,7 +319,7 @@ export default function Home() {
               return (
                 <Card
                   key={index}
-                  className="bg-white rounded-lg overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.6)] hover:-translate-y-2 transition-all duration-300 p-0 flex flex-col h-full gap-px"
+                  className="bg-white rounded-lg overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.5)] hover:-translate-y-2 transition-all duration-300 p-0 flex flex-col h-full gap-px"
                 >
                   <div className="relative h-48 sm:h-52 md:h-56 overflow-hidden">
                     <img
@@ -370,7 +377,7 @@ export default function Home() {
         </div>
 
         {/* Note */}
-        <div className="text-center px-4 pb-4 sm:pb-6">
+        <div className="text-center px-4 pb-6 sm:pb-6">
           <p className="text-gray-900 text-sm sm:text-base">
             NB: Laundry basket priced by weight scale
           </p>
