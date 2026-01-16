@@ -68,13 +68,13 @@ const handleScrollOrNavigate = (sectionId?: string) => {
     />
 
       {/* Fixed Header */}
-      <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm z-50 px-1 md:px-12 flex items-center justify-between shadow-sm h-16 md:h-20">
+      <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm z-50 px-1 md:px-12 flex items-center justify-between shadow-sm h-18 md:h-20">
         {/* Logo */}
         <div className="flex items-center h-full">
           <img
             src="/assets/ccl.logo.png"
             alt="Classic Clean Laundry Logo"
-            className="object-contain w-20 h-20 md:w-24 md:h-24"
+            className="object-contain w-20 h-20 md:w-24 md:h-24 scale-110"
           />
         </div>
 
