@@ -203,8 +203,15 @@ export default function SignUpPage() {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <Card className="w-full max-w-sm p-5 shadow-[0_15px_40px_rgba(0,0,0,0.25)]">
+        <div className="flex items-center justify-center h-full">
+          <img
+            src="/assets/ccl.logo.png"
+            alt="Classic Clean Laundry Logo"
+            className="object-contain w-20 h-20 md:w-24 md:h-24 scale-190 mb-2"
+          />
+        </div>
         <div className="mb-2 text-center">
-          <h1 className="text-xl sm:text-2xl font-bold text-[#003262] mb-1">Create Account</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#003262] mb-1">Signup</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-2">
@@ -218,7 +225,7 @@ export default function SignUpPage() {
               value={formData.fullName}
               onChange={handleChange}
               required
-              className="mt-1 text-sm sm:text-base placeholder:text-sm sm:placeholder:text-sm"
+              className="mt-1 text-sm sm:text-base placeholder:text-sm sm:placeholder:text-sm placeholder:text-gray-400"
             />
           </div>
 
@@ -231,7 +238,7 @@ export default function SignUpPage() {
               placeholder="your.email@example.com"
               value={formData.email}
               onChange={handleChange}
-              className="mt-1 placeholder:text-sm sm:placeholder:text-sm"
+              className="mt-1 placeholder:text-sm sm:placeholder:text-sm placeholder:text-gray-400"
             />
           </div>
 
@@ -245,7 +252,7 @@ export default function SignUpPage() {
               value={formData.phone}
               onChange={handleChange}
               required
-              className="mt-1 text-sm sm:text-base placeholder:text-sm sm:placeholder:text-sm"
+              className="mt-1 text-sm sm:text-base placeholder:text-sm sm:placeholder:text-sm placeholder:text-gray-400"
             />
           </div>
 
@@ -265,7 +272,7 @@ export default function SignUpPage() {
               minLength={8}
               pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}"
               // Border color while typing/focused: red if invalid, green if valid, otherwise default
-              className={`mt-1 text-sm sm:text-base placeholder:text-sm sm:placeholder:text-base
+              className={`mt-1 text-sm sm:text-base placeholder:text-sm sm:placeholder:text-base placeholder:text-gray-400
                 ${isPasswordFocused && passwordValid === false ? "border-red-600" : ""}
                 ${isPasswordFocused && passwordValid === true ? "border-green-600 text-green-700" : ""}`}
             />
@@ -298,7 +305,7 @@ export default function SignUpPage() {
               onFocus={handleConfirmFocus}
               onBlur={handleConfirmBlur}
               required
-              className={`mt-1 text-sm sm:text-base placeholder:text-sm sm:placeholder:text-base
+              className={`mt-1 text-sm sm:text-base placeholder:text-sm sm:placeholder:text-base placeholder:text-gray-400
                 ${isConfirmFocused && confirmValid === false ? "border-red-600" : ""}
                 ${isConfirmFocused && confirmValid === true ? "border-green-600 text-green-700" : ""}`}
             />
@@ -330,7 +337,7 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        <div className="mt-2">
+        <div className="mt-0">
           <Link href="/" className="text-[#003262] hover:underline text-sm flex items-center justify-center">
             ← Back to Home
           </Link>
