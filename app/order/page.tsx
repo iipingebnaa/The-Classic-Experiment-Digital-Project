@@ -34,6 +34,7 @@ import { API } from "@/config/api";
 import type { AppDispatch } from "../redux/store";
 
 
+
 interface BackendItem {
   _id: string;
   name: string;
@@ -173,6 +174,12 @@ export default function OrderPage() {
     }
   };
 
+  const totalAmount = orderItems.reduce(
+  (sum, item) => sum + item.price * item.itemCount,
+  0
+  );
+
+
   return (
     <div className="min-h-screen bg-[#F4F7FB] p-4">
       <Header />
@@ -264,6 +271,7 @@ export default function OrderPage() {
                     <thead className="bg-gray-100">
                       <tr>
                         <th className="p-2 text-left">Item</th>
+                        <th className="p-2">Unit Price</th>
                         <th className="p-2">Qty</th>  
                         <th className="p-2">Softener</th>
                         <th className="p-2">Subtotal</th>
@@ -276,9 +284,12 @@ export default function OrderPage() {
                           <td className="p-2">
                             {itemsCatalog.find(i => i.id === item.serviceType)?.displayName || item.serviceType}
                           </td>
+                          <td className="p-2 text-center">
+                            N${item.price.toFixed(2)}
+                          </td>
                           <td className="p-2 text-center">{item.itemCount}</td>
                           <td className="p-2 text-center">{item.softenerFlavor || "-"}</td>
-                          <td className="p-2 text-center text-green-900 font-semibold">
+                          <td className="p-2 text-center font-semibold">
                               N${(item.price * item.itemCount).toFixed(2)}
                           </td>
                           <td className="p-2 text-center">
@@ -289,13 +300,30 @@ export default function OrderPage() {
                               className="text-right cursor-pointer hover:text-red-700"
                               onClick={() => dispatch(removeItem(item.id))}
                             />
+
+
                           </td>
                         </tr>
                       ))}
+
+                    
+
                     </tbody>
                   </table>
                 </div>
               )}
+
+              {orderItems.length > 0 && (
+              <div className="mt-4 flex justify-start">
+                <div>
+                  <span className="text-sm text-gray-900">Total Amount:</span>
+                  <div className="text-lg font-bold text-green-900">
+                  N${totalAmount.toFixed(2)}
+                  </div>
+                </div>
+              </div>
+)}
+
 
               <Button
                 className="mt-4 w-full sm:w-[190px] mx-auto block rounded-full bg-[#003262] hover:bg-[#003262] justify-center"
@@ -311,8 +339,8 @@ export default function OrderPage() {
             <>
               <Label className="text-base">Special Instructions</Label>
               <Textarea
-                placeholder="Enter your instructions here"
-                className="mt-1 min-h-[150px] text-base"
+                placeholder="Enter your instructions here, if any"
+                className="mt-1 min-h-[150px] text-base text-gray-100"
                 value={currentItem.specialInstructions}
                 onChange={(e) =>
                   dispatch(setCurrentItemField({ field: "specialInstructions", value: e.target.value }))
@@ -340,24 +368,35 @@ export default function OrderPage() {
                   dispatch(setPickupDetails({ ...pickup, pickupAddress: e.target.value }))
                 }
               />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-                <Label className="mt-0 text-md" htmlFor="weight">Date</Label>
-                <Input
-                  type="date"
-                  value={pickup.pickupDate}
-                  onChange={(e) =>
-                    dispatch(setPickupDetails({ ...pickup, pickupDate: e.target.value }))
-                  }
-                />
-                <Label className="mt-0 text-md" htmlFor="weight">Time</Label>
-                <Input
-                  type="time"
-                  value={pickup.pickupTime}
-                  onChange={(e) =>
-                    dispatch(setPickupDetails({ ...pickup, pickupTime: e.target.value }))
-                  }
-                />
-              </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 flex justify-center">
+  <div className="flex flex-col w-1/2">
+    <Label className="text-md mb-1" htmlFor="pickupDate">
+      Date
+    </Label>
+    <Input
+      id="pickupDate"
+      type="date"
+      value={pickup.pickupDate}
+      onChange={(e) =>
+        dispatch(setPickupDetails({ ...pickup, pickupDate: e.target.value }))
+      }
+    />
+  </div>
+
+  <div className="flex flex-col w-1/2">
+    <Label className="text-md mb-1" htmlFor="pickupTime">
+      Time
+    </Label>
+    <Input
+      id="pickupTime"
+      type="time"
+      value={pickup.pickupTime}
+      onChange={(e) =>
+        dispatch(setPickupDetails({ ...pickup, pickupTime: e.target.value }))
+      }
+    />
+  </div>
+</div>
               <div className="flex justify-center gap-4 mt-6">
                 <Button className="w-1/2 sm:w-[180px] bg-[#408ac8] hover:bg-[#408ac8] text-white rounded-full" onClick={() => setStep(2)}>
                   Back
