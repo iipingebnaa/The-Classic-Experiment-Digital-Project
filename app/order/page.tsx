@@ -1,317 +1,379 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import Header from "@/components/header"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addItem,
+  removeItem,
+  resetCurrentItem,
+  setCurrentItemField,
+  setPickupDetails,
+  selectCurrentItem,
+  selectOrderItems,
+  selectPickupDetails,
+  submitOrder,
+} from "../redux/order/orderSlice";
+import { selectCustomer } from "../redux/auth/authSlice";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import Header from "@/components/header";
+import WhatsAppButton from "@/components/whatsapp-button";
+import { Trash2 } from "lucide-react";
+import { API } from "@/config/api";
+import type { AppDispatch } from "../redux/store";
 
-const serviceTypes = ["Baskets", "Basket Iron Only", "Ladies' Wear", "Men's Wear", "Blankets/Duvet inners", "Beddings", "Curtains", "Others"]
-const softenerFlavors = ["Lavender", "Fresh Linen", "Ocean Breeze", "No Preference"]
+
+interface BackendItem {
+  _id: string;
+  name: string;
+  description?: string;
+  unit_price: number;
+}
+
+interface Item {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  displayName?: string;
+}
+
 
 export default function OrderPage() {
-  const router = useRouter()
-  const [step, setStep] = useState(1)
-  const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    serviceType: "",
-    itemCount: "",
-    weight: "",
-    softenerFlavor: "",
-    specialInstructions: "",
-    pickupAddress: "",
-    pickupDate: "",
-    pickupTime: "",
-  })
-  const [editOrderId, setEditOrderId] = useState<number | null>(null)
+  const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [stepError, setStepError] = useState(""); // New single error message
+  const customer = useSelector(selectCustomer);
+  const currentItem = useSelector(selectCurrentItem);
+  const orderItems = useSelector(selectOrderItems);
+  const pickup = useSelector(selectPickupDetails);
+  const [loading, setLoading] = useState(false);
+  const [loadingItems, setLoadingItems] = useState(true);
 
+  const [step, setStep] = useState(1);
+  const [itemsCatalog, setItemsCatalog] = useState<Item[]>([]);
+  const [selectedPrice, setSelectedPrice] = useState(0);
 
+  const softenerFlavors = ["Lavender", "Fresh Linen", "Ocean Breeze", "No Preference"];
+
+  // ================= FETCH ITEMS =================
   useEffect(() => {
-  const params = new URLSearchParams(window.location.search);
-  const editId = params.get("edit");
-  if (editId) {
-    const savedOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-    const orderToEdit = savedOrders.find((o: any) => o.id === Number(editId));
-    if (orderToEdit) {
-      setFormData({...orderToEdit});//spreads existing order data
-      setEditOrderId(orderToEdit.id);
-    }
-  }
-}, []);
-
-
-  // Get token from cookie
-  const getCookie = (name: string) => {
-    const value = `; ${document.cookie}`
-    const parts = value.split(`; ${name}=`)
-    if (parts.length === 2) return parts.pop()?.split(';').shift()
-  }
-
-  useEffect(() => {
-    const token = getCookie("userToken")
-    if (!token) {
-      router.push("/login?redirect=/order") // send user to login, store redirect
-    }
-  }, [router])
-
-  const handleChange = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value })
-  }
-
-  const handleNext = () => {
-  if (step === 1) {
-    // Check all required fields in step 1
-    const { serviceType, itemCount, weight, softenerFlavor } = formData;
-    if (!serviceType || !itemCount || !weight || !softenerFlavor) {
-      setStepError("Please fill in all fields!");
-      return; // Stop moving to next step
-    }
-  }
-
-  // Clear previous error
-  setStepError("");
-  if (step < 3) setStep(step + 1);
-};
-
-
-
-  const handleBack = () => { if (step > 1) setStep(step - 1) }
-
-  // Submit new order
-  const handleSubmit = async () => {
-  // Step 3 required fields
-  const { pickupAddress, pickupDate, pickupTime } = formData;
-  if (!pickupAddress || !pickupDate || !pickupTime) {
-    setStepError("Please fill in all fields!");
-    return; // Stop submission
-  }
-
-   setErrors({})
-    setLoading(true)
-
+  const fetchItems = async () => {
     try {
-      if (editOrderId) {
-        // Update existing order
-        const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]")
-        const updatedOrders = existingOrders.map((o: any) =>
-          o.id === editOrderId ? { ...o, ...formData } : o
-        )
-        localStorage.setItem("orders", JSON.stringify(updatedOrders))
-        alert("Order updated (localStorage)")
+      const url = API.getItems();
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Failed to fetch items");
 
-        // TODO: Replace with PUT /sales_order/{order_id}
-        /*
-        const token = getCookie("userToken")
-        const response = await fetch(`https://staging.oxygen.siskusserver.com/api/sales_order/${OrderId}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(formData),
+      
+      const data: BackendItem[] = await response.json();
+
+      // Map to frontend Item type
+      const itemsMapped: Item[] = data.map(item => ({
+        id: item._id,
+        name: item.name,
+        description: item.description,
+        price: item.unit_price,
+      }));
+
+      // Remove duplicates by id or name
+      const uniqueItems: Item[] = Array.from(
+        new Map(
+          itemsMapped.map(item => {
+            const sameName = itemsMapped.find(i => i.id !== item.id && i.name === item.name);
+            return [
+             sameName ? item.description ?? item.name : item.name, 
+             {
+              ...item,
+              displayName: sameName ? item.description ?? item.name : item.name, 
+            },
+           ];
         })
-        const data = await response.json()
-        if (data.success) {
-          // handle success
-        }
-        */
-      } else {
-        // Create new order
-        const newOrder = {
-          id: Date.now(),
-          ...formData,
-          status: "Washing",
-          price: `N$${Number(formData.itemCount || 0) * 10}`
-        }
-        const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]")
-        localStorage.setItem("orders", JSON.stringify([newOrder, ...existingOrders]))
-        alert("Order saved (localStorage)")
+        ).values()
+      );
 
-        // TODO: Replace with POST /sales_order
-        /*
-        const token = getCookie("userToken")
-        const response = await fetch(`https://staging.oxygen.siskusserver.com/api/sales_order`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            ...formData,
-            itemCount: Number(formData.itemCount),
-            weight: Number(formData.weight)
-          }),
-        })
-        const data = await response.json()
-        if (data.success) {
-          // handle success
-        }
-        */
-      }
 
-      // Redirect to My Orders
-      router.push("/my-orders?success=true")
-    } catch (error) {
-      console.error("Order submission error:", error)
+      setItemsCatalog(uniqueItems);
+      
+    } catch (err) {
+      console.error(err);
+      setItemsCatalog([]);
     } finally {
-      setLoading(false)
+      setLoadingItems(false); // done fetching
     }
-  }
+  };
+  fetchItems();
+  }, []);
+
+  
+
+  // ================= HANDLE ITEM CHANGE =================
+  const handleItemChange = (value: string) => {
+    dispatch(setCurrentItemField({ field: "serviceType", value }));
+    const foundItem = itemsCatalog.find((i) => i.name === value);
+    setSelectedPrice(foundItem?.price ?? 0);
+  };
+
+  // ================= ADD ITEM =================
+  const handleAddItem = () => {
+    if (!currentItem.serviceType || !currentItem.itemCount) return;
+
+    // Find the selected item from catalog
+  const selected = itemsCatalog.find(
+    (i) => String(i.id) === currentItem.serviceType
+  );
+  if (!selected) return;
+
+    dispatch(
+      addItem({
+        id: Date.now(),
+        serviceType: currentItem.serviceType,
+        itemCount: Number(currentItem.itemCount),
+        softenerFlavor: currentItem.softenerFlavor,
+        specialInstructions: currentItem.specialInstructions,
+        price: selected.price,
+      })
+    );
+
+    dispatch(resetCurrentItem());
+    setSelectedPrice(0);
+  };
+
+  // ================= SUBMIT ORDER =================
+  const handleSubmit = async () => {
+    if (orderItems.length === 0) {
+      alert("Please add at least one item");
+      return;
+    }
+
+    if (!customer) {
+      alert("Customer not found. Please login again.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await dispatch(submitOrder());
+      router.push("/my-orders");
+    } catch (err) {
+      console.error("Failed to submit order", err);
+      alert("Failed to submit order");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-200 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#F4F7FB] p-4">
       <Header />
-      <Card className="w-full max-w-2xl p-6 sm:p-8 mt-20 shadow-[0_15px_40px_rgba(0,0,0,0.25)]">
-        <div className="mb-6 flex flex-col items-center">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#003262] mb-6">Place Your Order</h1>
-          <div className="flex items-center gap-6 lg:gap-10 text-sm text-gray-800">
-            <span className={step >= 1 ? "text-[#09943d] font-semibold" : ""}>Step 1</span>
-            <span>→</span>
-            <span className={step >= 2 ? "text-[#09943d] font-semibold" : ""}>Step 2</span>
-            <span>→</span>
-            <span className={step >= 3 ? "text-[#09943d] font-semibold" : ""}>Step 3</span>
+      <WhatsAppButton />
+
+      <div className="pt-[90px] max-w-5xl mx-auto">
+        <Card className="p-6 shadow-[0_15px_40px_rgba(0,0,0,0.25)]">
+          <div className="mb-4 space-y-3 text-center">
+            <h1 className="text-2xl font-bold text-[#003262]">Place Your Order</h1>
+            <p className="text-md font-semibold text-green-700">Step {step} of 3</p>
           </div>
-        </div>
 
-        {/* Step 1 */}
-        {step === 1 && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold mb-4">Service Details</h2>
+          {/* STEP 1 — ITEMS */}
+          {step === 1 && (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div className="w-[var(--radix-select-trigger-width)]">
+                  <Label htmlFor="serviceType">Service Type</Label>
+                  <Select
+                    value={currentItem.serviceType || ""} 
+                    onValueChange={(value) => 
+                      dispatch(setCurrentItemField({ field: "serviceType", value }))
+                    }
+                  >
+                    <SelectTrigger className="mt-1 w-full text-gray-500">
+                      <SelectValue placeholder="Select item">
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="w-[var(--radix-select-trigger-width)]">
+                      {itemsCatalog.length > 0
+                        ? itemsCatalog.map((item) => (
+                            <SelectItem key={item.id} value={item.id}>
+                              {item.displayName}
+                            </SelectItem>
+                          ))
+                        : (
+                          <SelectItem key="empty" value="none" disabled>
+                            Loading...
+                          </SelectItem>
+                        )}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            <div>
-              <Label htmlFor="serviceType">Service Type</Label>
-              <Select value={formData.serviceType} onValueChange={(value) => handleChange("serviceType", value)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select service type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {serviceTypes.map((type) => <SelectItem key={type} value={type}>{type}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              {errors.serviceType && <p className="text-red-600 text-sm mt-1">{errors.serviceType}</p>}
-            </div>
+                <div>
+                  <Label>Number of Items</Label>
+                  <Input
+                    type="number"
+                    value={currentItem.itemCount}
+                    onChange={(e) =>
+                      dispatch(setCurrentItemField({ field: "itemCount", value: e.target.value }))
+                    }
+                  />
+                </div>  
 
-            <div>
-              <Label htmlFor="itemCount">Number of Items</Label>
-              <Input
-                id="itemCount"
-                type="number"
-                placeholder="e.g., 15"
-                value={formData.itemCount}
-                onChange={(e) => handleChange("itemCount", e.target.value)}
-                className="mt-1"
-              />
-              {errors.itemCount && <p className="text-red-600 text-sm mt-1">{errors.itemCount}</p>}
-            </div>
+                <div>
+                  <Label>Softener Flavor</Label>
+                  <Select
+                    value={currentItem.softenerFlavor}
+                    onValueChange={(value) =>
+                      dispatch(setCurrentItemField({ field: "softenerFlavor", value }))
+                    }
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select flavor" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {softenerFlavors.map((f) => (
+                        <SelectItem key={f} value={f}>
+                          {f}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            <div>
-              <Label htmlFor="weight">Estimated Weight (kg)</Label>
-              <Input
-                id="weight"
-                type="number"
-                placeholder="e.g., 3"
-                value={formData.weight}
-                onChange={(e) => handleChange("weight", e.target.value)}
-                className="mt-1"
-              />
-              {errors.weight && <p className="text-red-600 text-sm mt-1">{errors.weight}</p>}
-            </div>
-
-            <div>
-              <Label htmlFor="softenerFlavor">Softener Flavor</Label>
-              <Select value={formData.softenerFlavor} onValueChange={(value) => handleChange("softenerFlavor", value)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select softener flavor" />
-                </SelectTrigger>
-                <SelectContent>
-                  {softenerFlavors.map((flavor) => <SelectItem key={flavor} value={flavor}>{flavor}</SelectItem>)}
-                </SelectContent>
-              </Select>
-              {stepError && <p className="text-red-600 text-sm mt-4">{stepError}</p>}
-
-            </div>
-
-            <Button onClick={handleNext} className="w-full bg-[#003262] text-white hover:bg-[#003262] active:bg-[#003262]">Next</Button>
-          </div>
-        )}
-
-        {/* Step 2 */}
-        {step === 2 && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold mb-4">Additional Details</h2>
-            <div>
-              <Label htmlFor="specialInstructions">Special Instructions (Optional)</Label>
-              <Textarea
-                id="specialInstructions"
-                placeholder="Any special care instructions..."
-                value={formData.specialInstructions}
-                onChange={(e) => handleChange("specialInstructions", e.target.value)}
-                className="mt-1 min-h-32"
-              />
-            </div>
-
-            <div className="flex gap-3">
-              <Button onClick={handleBack} className="flex-1 bg-[#408ac8] text-white hover:bg-[#408ac8] border-none shadow-none">Back</Button>
-              <Button onClick={handleNext} className="flex-1 bg-[#003262] text-white hover:bg-[#003262] border-none shadow-none">Next</Button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3 */}
-        {step === 3 && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold mb-4">Pickup Details</h2>
-            <div>
-              <Label htmlFor="pickupAddress">Pickup Address</Label>
-              <Textarea
-                id="pickupAddress"
-                placeholder="Enter your full address..."
-                value={formData.pickupAddress}
-                onChange={(e) => handleChange("pickupAddress", e.target.value)}
-                className="mt-1"
-              />
-              
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="pickupDate">Pickup Date</Label>
-                <Input
-                  id="pickupDate"
-                  type="date"
-                  value={formData.pickupDate}
-                  onChange={(e) => handleChange("pickupDate", e.target.value)}
-                  className="mt-1"
-                />
+                <Button
+                  className="bg-[#408ac8] hover:bg-[#408ac8] rounded-full mt-4 md:mt-0"
+                  onClick={handleAddItem}
+                >
+                  + Add Item
+                </Button>
               </div>
-              <div>
-                <Label htmlFor="pickupTime">Pickup Time</Label>
-                <Input
-                  id="pickupTime"
-                  type="time"
-                  value={formData.pickupTime}
-                  onChange={(e) => handleChange("pickupTime", e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              {stepError && <p className="text-red-600 text-sm mt-1 inline-block whitespace-nowrap">{stepError}</p>}
-            </div>
 
-            <div className="flex gap-3">
-              <Button onClick={handleBack} className="flex-1 bg-[#408ac8] text-white hover:bg-[#408ac8] border-none shadow-none">Back</Button>
-              <Button onClick={handleSubmit} className="flex-1 bg-[#003262] hover:bg-[#003262]" disabled={loading}>
-                {loading ? "Submitting..." : editOrderId ? "Update Order" : "Submit Order"}
+              {/* ITEMS TABLE */}
+              {orderItems.length > 0 && (
+                <div className="mt-6 overflow-x-auto">
+                  <table className="w-full text-sm border rounded-lg">
+                    <thead className="bg-gray-100">
+                      <tr>
+                        <th className="p-2 text-left">Item</th>
+                        <th className="p-2">Qty</th>  
+                        <th className="p-2">Softener</th>
+                        <th className="p-2">Subtotal</th>
+                        <th className="p-2">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orderItems.map((item) => (
+                        <tr key={item.id} className="border-t">
+                          <td className="p-2">
+                            {itemsCatalog.find(i => i.id === item.serviceType)?.displayName || item.serviceType}
+                          </td>
+                          <td className="p-2 text-center">{item.itemCount}</td>
+                          <td className="p-2 text-center">{item.softenerFlavor || "-"}</td>
+                          <td className="p-2 text-center text-green-900 font-semibold">
+                              N${(item.price * item.itemCount).toFixed(2)}
+                          </td>
+                          <td className="p-2 text-center">
+                          
+                            <Trash2
+                              size={20}
+                              color="#dc2626"
+                              className="text-right cursor-pointer hover:text-red-700"
+                              onClick={() => dispatch(removeItem(item.id))}
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <Button
+                className="mt-4 w-full sm:w-[190px] mx-auto block rounded-full bg-[#003262] hover:bg-[#003262] justify-center"
+                onClick={() => setStep(2)}
+              >
+                Next
               </Button>
-            </div>
-          </div>
-        )}
-      </Card>
+            </>
+          )}
+
+          {/* STEP 2 — SPECIAL INSTRUCTIONS */}
+          {step === 2 && (
+            <>
+              <Label className="text-base">Special Instructions</Label>
+              <Textarea
+                placeholder="Enter your instructions here"
+                className="mt-1 min-h-[150px] text-base"
+                value={currentItem.specialInstructions}
+                onChange={(e) =>
+                  dispatch(setCurrentItemField({ field: "specialInstructions", value: e.target.value }))
+                }
+              />
+              <div className="flex justify-center gap-4 mt-4">
+                <Button className="w-1/2 sm:w-[180px] bg-[#408ac8] hover:bg-[#408ac8] text-white rounded-full" onClick={() => setStep(1)}>
+                  Back
+                </Button>
+                <Button className="w-1/2 sm:w-[180px] bg-[#003262] hover:bg-[#003262] text-white rounded-full" onClick={() => setStep(3)}>
+                  Next
+                </Button>
+              </div>
+            </>
+          )}
+
+          {/* STEP 3 — PICKUP */}
+          {step === 3 && (
+            <>
+              <Label className="text-base">Pickup Address</Label>
+              <Textarea
+                placeholder="Enter your address here"
+                value={pickup.pickupAddress}
+                onChange={(e) =>
+                  dispatch(setPickupDetails({ ...pickup, pickupAddress: e.target.value }))
+                }
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                <Label className="mt-0 text-md" htmlFor="weight">Date</Label>
+                <Input
+                  type="date"
+                  value={pickup.pickupDate}
+                  onChange={(e) =>
+                    dispatch(setPickupDetails({ ...pickup, pickupDate: e.target.value }))
+                  }
+                />
+                <Label className="mt-0 text-md" htmlFor="weight">Time</Label>
+                <Input
+                  type="time"
+                  value={pickup.pickupTime}
+                  onChange={(e) =>
+                    dispatch(setPickupDetails({ ...pickup, pickupTime: e.target.value }))
+                  }
+                />
+              </div>
+              <div className="flex justify-center gap-4 mt-6">
+                <Button className="w-1/2 sm:w-[180px] bg-[#408ac8] hover:bg-[#408ac8] text-white rounded-full" onClick={() => setStep(2)}>
+                  Back
+                </Button>
+                <Button
+                  className="w-1/2 sm:w-[180px] bg-[#003262] hover:bg-[#003262] text-white rounded-full"
+                  onClick={handleSubmit}
+                  disabled={loading}
+                >
+                  {loading ? "Submitting..." : "Submit Order"}
+                </Button>
+              </div>
+            </>
+          )}
+        </Card>
+      </div>
     </div>
-  )
+  );
 }
