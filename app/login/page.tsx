@@ -1,139 +1,147 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Eye, EyeOff } from "lucide-react"
+import { API } from "@/config/api"
+import { useDispatch, useSelector } from "react-redux"
+import { loginFailure, loginStart, loginSuccess, selectError, selectLoading } from "../redux/auth/authSlice"
+import type { AppDispatch } from "../redux/store"
+
+
 
 export default function LoginPage() {
   const router = useRouter()
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+  const dispatch = useDispatch<AppDispatch>()
 
-  const baseUrl = "https://staging.oxygen.siskusserver.com/api"; // staging URL
+  const loading = useSelector(selectLoading)
+  const error = useSelector(selectError)
+
+  const [phoneNumber, setPhoneNumber] = useState("")
+  
+
+  // Namibia mobile number regex (local or international)
+  const namibiaMobileRegex = /^(?:\+264|0)(81|83|84|85)\d{7}$/
+
+  // Normalize phone to local 08XXXXXXXX
+  const normalizePhoneToLocal = (phone: string) => {
+    let digits = phone.replace(/\D/g, "") // remove spaces, dashes, etc.
+
+    if (digits.startsWith("264") && digits.length === 11) {
+      return "0" + digits.slice(3) // +264812345678 → 0812345678
+    }
+
+    if (digits.startsWith("0") && digits.length === 10) {
+      return digits // already local
+    }
+
+    if (digits.length === 9 && digits.startsWith("8")) {
+      return "0" + digits // 812345678 → 0812345678
+    }
+
+    return digits // fallback
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError("")
 
-    // Validate required fields
-    if (!username || !password) {
-      setError("Please fill in all required fields.")
+
+    if (!phoneNumber) {
+      dispatch(loginFailure("Please enter your phone number."))
       return
     }
 
-    setLoading(true)
+    const localPhone = normalizePhoneToLocal(phoneNumber)
+    console.log("Normalized phone:", localPhone)
+
+    if (!namibiaMobileRegex.test(localPhone)) {
+      dispatch(loginFailure("Please enter a valid phone number."))
+      return
+    }
+
+    dispatch(loginStart())
 
     try {
+      const url = API.getCustomerByPhone(localPhone);
+      console.log("Fetching URL:", url) // debug request
       
-    // API call
-    const baseUrl = "https://staging.oxygen.siskusserver.com/api"; // staging URL
-    const response = await fetch(`${baseUrl}/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: username.trim(),  // API expects "username"
-        password: password.trim()
-      }),
-    }); 
+      const response = await fetch(url)
+      console.log("Raw response status:", response.status)
 
-    const data = await response.json();
-    
-   /*
-    // MOCK API response for frontend testing
-    const Response = await fetch("/mock/login.json");
-    const data = await Response.json();
-    */
-   
-    if (!data.success) {
-    setError(data.message || "Username or password is incorrect");
-    return;
+      if (!response.ok) {
+        throw new Error("Request failed")
+      }
+
+      const data = await response.json();
+
+      console.log("Backend response:", data);
+
+      // Backend returns an array
+      const customer = data?.[0] || null;
+
+      if (!customer) {
+        dispatch(loginFailure("Phone number not found"))
+        return
+      }
+
+      // Extract first name from full_name
+      const firstName = customer.full_name?.split(" ")[0] || "";
+      customer.first_name = firstName;
+
+      dispatch(loginSuccess(customer))
+
+      router.push("/welcome")
+    } catch (error) {
+      console.error("Login error:", error)
+      dispatch(loginFailure("Something went wrong. Please try again."))
+    }
   }
 
-  
-    //document.cookie = `userToken=${data.token}; path=/; secure; samesite=strict`; //secure cookie storage
-    // TEMPORARY: Mobile testing only — remove secure flag
-    document.cookie = `userToken=${data.token}; path=/; samesite=strict`;
 
 
-   // router.push("/my-orders");
-const params = new URLSearchParams(window.location.search);
-const redirectTo = params.get("redirect") || "/my-orders"; // default if no redirect
-router.push(redirectTo);
-
-
-  } catch (err) {
-    setError("Username or password is incorrect");
-  } finally {
-    setLoading(false);
-  }
-  }
-
-  return (  
+  return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-6 sm:p-16 shadow-[0_15px_40px_rgba(0,0,0,0.25)]">
+      <Card className="w-full max-w-md p-6 sm:p-16 shadow-[0_0_40px_0_rgba(0,0,0,0.3)] rounded-3xl">
         <div className="flex items-center justify-center h-full">
           <img
             src="/assets/ccl.logo.png"
             alt="Classic Clean Laundry Logo"
-            className="object-contain w-20 h-20 md:w-24 md:h-24 scale-190 mb-2"
+            className="object-contain w-20 h-20 md:w-24 md:h-24 scale-200 mb-2"
           />
         </div>
+
         <div className="mb-2 text-center">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#003262] mb-1">Welcome Back :)</h1>
+          <h1 className="text-lg sm:text-xl font-bold text-[#003262] mb-1">CLASSIC CLEAN LAUNDRY</h1>
+          <p className="text-[#003262]">
+            "Your laundry, Our priority"
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="phone">Username</Label>
+            <Label htmlFor="phoneNumber"></Label>
             <Input
-              id="username"
+              id="phoneNumber"
               type="text"
-              placeholder="FirstName LastName"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              placeholder="Enter your cellphone number"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
               required
-              className="mt-1 text-sm sm:text-base placeholder:text-sm sm:placeholder:text-base"
+              className="placeholder-gray-100 text-center"
             />
-          </div>
-
-          <div className="relative">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type={showPassword ? "text" : "password"} // toggles visibility
-              placeholder="********"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="mt-1 text-sm sm:text-baseplaceholder:text-sm sm:placeholder:text-base"
-            />
-            <button
-              type="button"
-              className="absolute right-2 top-[50%] -translate-y-[10%] sm:-translate-y-[50%] text-gray-500"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
-            </button>
-
           </div>
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
-          <div className="flex items-center justify-between text-sm">
-            <Link href="/forgot-password" className="text-[#003262] hover:underline">
-              Forgot Password?
-            </Link>
-          </div>
-
-          <Button type="submit" className="w-full bg-[#003262] hover:bg-[#003262] active:bg-[#003262]" disabled={loading}>
+          <Button
+            type="submit"
+            className="w-full bg-[#003262] rounded-full"
+            disabled={loading}
+          >
             {loading ? "Logging in..." : "Login"}
           </Button>
         </form>
