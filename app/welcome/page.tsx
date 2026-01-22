@@ -35,7 +35,7 @@ export default function WelcomePage() {
         <div className="flex flex-col gap-4">
           <Button
             onClick={() => router.push("/order")}
-            className="w-full bg-[#003262] rounded-full"
+            className="w-full bg-[#003262] hover:bg-[#003262] rounded-full"
           >
             Start Order
           </Button>
