@@ -4,6 +4,19 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
+import ReduxProvider from "./redux/ReduxProvider";
+import { Toaster } from "sonner";
+
+
+/*//Connecting React to Redux  using Provider, making the store accessible to the entire app
+ReactDOM.createRoot(document.getElementById("root")!).render(
+   <Provider store={store}>
+      <Home />
+   </Provider>
+);
+*/
 
 const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700"],
@@ -69,6 +82,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={`${poppins.variable} antialiased`} style={{ fontFamily: "var(--font-poppins), sans-serif" }}>
         <ServiceWorkerRegister />
+       
 
         {/* Google Analytics */}
         <Script
@@ -121,8 +135,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             }),
           }}
         />
-
+       <ReduxProvider>
         {children}
+      </ReduxProvider>
+      <Toaster position="top-center" richColors />
       </body>
     </html>
   );
