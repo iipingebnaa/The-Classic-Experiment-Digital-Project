@@ -10,14 +10,6 @@ import ReduxProvider from "./redux/ReduxProvider";
 import { Toaster } from "sonner";
 
 
-/*//Connecting React to Redux  using Provider, making the store accessible to the entire app
-ReactDOM.createRoot(document.getElementById("root")!).render(
-   <Provider store={store}>
-      <Home />
-   </Provider>
-);
-*/
-
 const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700"],
   subsets: ["latin"],
