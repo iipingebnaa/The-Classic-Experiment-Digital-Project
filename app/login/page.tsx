@@ -11,6 +11,8 @@ import { API } from "@/config/api"
 import { useDispatch, useSelector } from "react-redux"
 import { loginFailure, loginStart, loginSuccess, selectError, selectLoading } from "../redux/auth/authSlice"
 import type { AppDispatch } from "../redux/store"
+import { toast } from "sonner"
+import { useRequireIntent } from "@/hooks/useRquireIntent"
 
 
 
@@ -45,6 +47,8 @@ export default function LoginPage() {
 
     return digits // fallback
   }
+
+  useRequireIntent();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -84,7 +88,10 @@ export default function LoginPage() {
       const customer = data?.[0] || null;
 
       if (!customer) {
-        dispatch(loginFailure("Phone number not found"))
+        toast.error("Phone number not found. Please sign up first.",
+          { duration: 8000 }
+        );
+
         return
       }
 
@@ -94,7 +101,8 @@ export default function LoginPage() {
 
       dispatch(loginSuccess(customer))
 
-      router.push("/welcome")
+      toast.success("Login successful!")
+      router.push("/welcome")  
     } catch (error) {
       console.error("Login error:", error)
       dispatch(loginFailure("Something went wrong. Please try again."))
@@ -139,7 +147,7 @@ export default function LoginPage() {
 
           <Button
             type="submit"
-            className="w-full bg-[#003262] rounded-full"
+            className="w-full bg-[#003262] hover:bg-[#003262] rounded-full"
             disabled={loading}
           >
             {loading ? "Logging in..." : "Login"}
