@@ -3,17 +3,29 @@
 import { useState } from "react";
 import { Menu, X, Home, Phone } from "lucide-react";
 import UnderConstructionOverlay from "./UnderConstructionOverlay";
+import { useSelector, useDispatch } from "react-redux";
+import { selectCustomer, logout } from "../app/redux/auth/authSlice";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [underConstruction, setUnderConstruction] = useState(false);
 
+  const customer = useSelector(selectCustomer);
+  const dispatch = useDispatch();
+  const router = useRouter();
+
   const triggerUnderConstruction = () => setUnderConstruction(true);
   const closeUnderConstruction = () => setUnderConstruction(false);
 
   const navigate = (path: string) => {
-    window.location.href = path;
+    router.push(path);
     setMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    dispatch(logout());
+    router.push("/"); 
   };
 
   const handleScrollOrNavigate = (sectionId?: string) => {
@@ -31,13 +43,9 @@ export default function Header() {
 
   return (
     <>
-      <UnderConstructionOverlay
-        open={underConstruction}
-        onClose={closeUnderConstruction}
-      />
+      <UnderConstructionOverlay open={underConstruction} onClose={closeUnderConstruction} />
 
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-sm z-50 px-1 md:px-12 flex items-center justify-between shadow-sm h-18 md:h-20">
+      <header className="fixed top-0 left-0 right-0 bg-white/40 backdrop-blur-sm z-50 px-1 md:px-12 flex items-center justify-between shadow-sm h-18 md:h-20">
         {/* Logo */}
         <div className="flex items-center h-full">
           <img
@@ -48,7 +56,7 @@ export default function Header() {
         </div>
 
         {/* Title */}
-        <h1 className="hidden md:block absolute w-full text-center left-1/2 transform -translate-x-1/2 z-10 text-[#003262] font-semibold tracking-[0.25em] text-sm sm:text-base md:text-xlg pointer-events-none">
+        <h1 className="hidden md:block absolute w-full text-center left-1/2 transform -translate-x-1/2 z-10 text-[#003262] font-semibold tracking-[0.25em] text-md sm:text-lg md:text-lg pointer-events-none">
           CLASSIC CLEAN LAUNDRY
         </h1>
 
@@ -61,32 +69,38 @@ export default function Header() {
         <nav className="hidden md:flex gap-6 items-center pr-4">
           <a
             onClick={() => handleScrollOrNavigate()}
-            className="text-[#003262] font-medium hover:underline cursor-pointer"
+            className="text-[#003262] font-medium hover:underline cursor-pointer text-lg"
           >
             Home
           </a>
 
           <a
             onClick={() => handleScrollOrNavigate("contact")}
-            className="text-[#003262] font-medium hover:underline cursor-pointer"
+            className="text-[#003262] font-medium hover:underline cursor-pointer text-lg"
           >
             Contact
           </a>
 
-          {/* Start Order Button */}
-          <button
-            onClick={() => navigate("/order")}
-            className="bg-[#003262] text-white px-5 py-2 rounded-full font-medium shadow-md hover:brightness-110 transition"
-          >
-            Start Order
-          </button>
+          {/* Conditional Button */}
+          {customer ? (
+            <button
+              onClick={handleLogout}
+              className="bg-[#003262] text-white px-4 py-2 rounded-full font-medium shadow-md hover:brightness-110 transition text-md"
+            >
+              Logout
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate("/order")}
+              className="bg-[#003262] text-white px-4 py-2 rounded-full font-medium shadow-md hover:brightness-110 transition text-md"
+            >
+              Start Order
+            </button>
+          )}
         </nav>
 
         {/* Mobile Menu Button */}
-        <button
-          className="p-2 flex-shrink-0 md:hidden"
-          onClick={() => setMenuOpen(true)}
-        >
+        <button className="p-2 flex-shrink-0 md:hidden" onClick={() => setMenuOpen(true)}>
           <Menu className="w-7 h-7 text-gray-900" />
         </button>
       </header>
@@ -94,11 +108,7 @@ export default function Header() {
       {/* Mobile Menu */}
       {menuOpen && (
         <>
-          <div
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
-            onClick={() => setMenuOpen(false)}
-          />
-
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40" onClick={() => setMenuOpen(false)} />
           <div className="fixed top-0 right-0 bottom-0 w-64 bg-white shadow-2xl z-50 p-4">
             <div className="flex justify-between items-center mb-4">
               <h2 className="font-semibold text-[#003262]">Menu</h2>
@@ -124,13 +134,22 @@ export default function Header() {
                 Contact
               </button>
 
-              {/* Start Order (Mobile) */}
-              <button
-                onClick={() => navigate("/order")}
-                className="mt-2 bg-[#003262] text-white px-4 py-2 rounded-full font-medium shadow hover:brightness-110"
-              >
-                Start Order
-              </button>
+              {/* Conditional Mobile Button */}
+              {customer ? (
+                <button
+                  onClick={handleLogout}
+                  className="mt-2 bg-[#003262] text-white px-4 py-2 rounded-full font-medium shadow hover:brightness-110"
+                >
+                  Logout
+                </button>
+              ) : (
+                <button
+                  onClick={() => navigate("/order")}
+                  className="mt-2 bg-[#003262] text-white px-4 py-2 rounded-full font-medium shadow hover:brightness-110"
+                >
+                  Start Order
+                </button>
+              )}
             </nav>
           </div>
         </>
