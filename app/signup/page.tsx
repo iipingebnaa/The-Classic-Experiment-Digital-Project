@@ -1,220 +1,119 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Eye, EyeOff } from "lucide-react"
+import type React from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import {
+  signupStart,
+  signupSuccess,
+  signupFailure,
+} from "../redux/auth/authSlice"; // adjust path if needed
 
 export default function SignUpPage() {
-  const router = useRouter()
+  const router = useRouter();
+  const dispatch = useDispatch();
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
-    password: "",
-    confirmPassword: "",
-  })
+  });
 
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // removed unused states; replaced with focused/valid flags
-  const [passwordValid, setPasswordValid] = useState<boolean | null>(null) // null = neutral (no color)
-  const [confirmValid, setConfirmValid] = useState<boolean | null>(null)
-
-  const [isPasswordFocused, setIsPasswordFocused] = useState(false)
-  const [isConfirmFocused, setIsConfirmFocused] = useState(false)
-
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-
-  const namibiaMobileRegex = /^(?:\+264|0)(81|83|84|85)\d{7}$/
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
-  // helper: validate password rules
-  const checkPasswordValidity = (value: string) => {
-    const errors: string[] = []
-    if (value.length < 8) errors.push("length")
-    if (!/[A-Z]/.test(value)) errors.push("upper")
-    if (!/[a-z]/.test(value)) errors.push("lower")
-    if (!/\d/.test(value)) errors.push("digit")
-    if (!/[^a-zA-Z0-9]/.test(value)) errors.push("special")
-    return errors.length === 0
-  }
+  const namibiaMobileRegex = /^(?:\+264|0)(81|83|84|85)\d{7}$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-
-    // update form data
-    setFormData((prev) => ({ ...prev, [name]: value }))
-
-    // special logic for password field
-    if (name === "password") {
-      const valid = checkPasswordValidity(value)
-      // only set the visual validity while focused (so we don't show green after blur)
-      if (isPasswordFocused) {
-        setPasswordValid(valid)
-      } else {
-        // if not focused, keep neutral
-        setPasswordValid(null)
-      }
-
-      // if confirm already has value, update confirm validity live
-      if (formData.confirmPassword) {
-        const confirmMatches = value === formData.confirmPassword
-        if (isConfirmFocused) {
-          setConfirmValid(confirmMatches)
-        } else {
-          setConfirmValid(null)
-        }
-      }
-    }
-
-    // confirm password live-check
-    if (name === "confirmPassword") {
-      const matches = value === formData.password
-      if (isConfirmFocused) {
-        setConfirmValid(matches)
-      } else {
-        setConfirmValid(null)
-      }
-    }
-  }
-
-  // focus/blur handlers so we only show color while user is actively editing
-  const handlePasswordFocus = () => {
-    setIsPasswordFocused(true)
-    // validate immediately on focus with current value
-    setPasswordValid(checkPasswordValidity(formData.password))
-  }
-  const handlePasswordBlur = () => {
-    setIsPasswordFocused(false)
-    // remove the green/red after blur (neutral)
-    setPasswordValid(null)
-  }
-
-  const handleConfirmFocus = () => {
-    setIsConfirmFocused(true)
-    setConfirmValid(formData.confirmPassword === formData.password)
-  }
-  const handleConfirmBlur = () => {
-    setIsConfirmFocused(false)
-    setConfirmValid(null)
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
+  e.preventDefault();
+  setError("");
+  setLoading(true);
+  dispatch(signupStart());
 
-    // Required fields
-    if (!formData.fullName || !formData.phone || !formData.password || !formData.confirmPassword) {
-      setError("Please fill in all required fields.")
-      return
+  try {
+    const sanitizedPhone = formData.phone.replace(/\s+/g, "");
+    const names = formData.fullName.trim().split(" ");
+
+    // 1️⃣ Check if customer already exists
+    const checkRes = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/customers?company=${process.env.NEXT_PUBLIC_COMPANY_ID}&phone_number=${encodeURIComponent(
+        sanitizedPhone
+      )}`
+    );
+
+    const existingData = await checkRes.json();
+
+    if (checkRes.ok && existingData.length > 0) {
+      // Customer exists → Welcome Back page
+      dispatch(signupSuccess(existingData[0]));
+      router.push("/welcome"); // <-- your page for returning customers
+      return;
     }
 
-    // Remove spaces from phone number
-    const sanitizedPhone = formData.phone.replace(/\s+/g, "")
-    formData.phone = sanitizedPhone
+    // 2️⃣ Customer does not exist → create
+    const payload = {
+      company: process.env.NEXT_PUBLIC_COMPANY_ID,
+      first_name: names[0] || ".",
+      last_name: names.length > 1 ? names.slice(1).join(" ") : ".",
+      phone_number: sanitizedPhone,
+      email: formData.email || "",
+    };
 
-    // Validate phone number
-    if (!namibiaMobileRegex.test(formData.phone)) {
-      setError("Please enter a valid cellphone number.")
-      return
-    }
-
-    // Validate email if provided
-    if (formData.email && !emailRegex.test(formData.email)) {
-      setError("Please enter a valid email address.")
-      return
-    }
-
-    // Password rule check (server-side should be authoritative; we re-check here)
-    if (!checkPasswordValidity(formData.password)) {
-      setError("Password does not meet the required complexity.")
-      return
-    }
-
-    // Check password match
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.")
-      return
-    }
-
-    setLoading(true)
-
-    
-    try {
-      // **Send request to staging API**
-      const requestBody = {
-        username: formData.fullName, // map fullName -> username
-        cellphone: formData.phone,
-        email: formData.email || "", // optional
-        password: formData.password,
-      }
-
-      const response = await fetch("https://staging.oxygen.siskusserver.com/api/register", {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}${process.env.NEXT_PUBLIC_API_CUSTOMER}`,
+      {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || "Registration failed")
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       }
+    );
 
-      // After successful registration, redirect to login
-      router.push("/login")
-    } catch (err: any) {
-      setError(err.message || "Failed to create account. Please try again.")
-    } finally {
-      setLoading(false)
-    }
-    
-/*
-    try {
-  // MOCK fetch for UI testing
-  const response = await fetch("/mock/register.json")
-  const data = await response.json()
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Signup failed");
 
-  if (!data.success) {
-    setError(data.message || "Registration failed")
-    return
+    dispatch(signupSuccess(data));
+    router.push("/welcome"); // <-- same page for new customers
+  } catch (err: any) {
+    dispatch(signupFailure(err.message));
+    setError(err.message || "Failed to create account. Please try again.");
+  } finally {
+    setLoading(false);
   }
-
-  // simulate redirect after successful registration
-  router.push("/login")
-} catch (err: any) {
-  setError(err.message || "Failed to create account. Please try again.")
-} finally {
-  setLoading(false)
-}
-  */
-
-  }
+};
 
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <Card className="w-full max-w-sm p-5 shadow-[0_15px_40px_rgba(0,0,0,0.25)]">
-        <div className="flex items-center justify-center h-full">
+        <div className="flex items-center justify-center mb-2">
           <img
             src="/assets/ccl.logo.png"
             alt="Classic Clean Laundry Logo"
-            className="object-contain w-20 h-20 md:w-24 md:h-24 scale-190 mb-2"
+            className="object-contain w-20 h-20 md:w-24 md:h-24"
           />
         </div>
-        <div className="mb-2 text-center">
-          <h1 className="text-xl sm:text-2xl font-bold text-[#003262] mb-1">Signup</h1>
+
+        <div className="mb-3 text-center">
+          <h1 className="text-xl sm:text-2xl font-bold text-[#003262]">
+            Create Account
+          </h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-2">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <Label htmlFor="fullName">Full Name</Label>
             <Input
@@ -225,7 +124,7 @@ export default function SignUpPage() {
               value={formData.fullName}
               onChange={handleChange}
               required
-              className="mt-1 text-sm sm:text-base placeholder:text-sm sm:placeholder:text-sm placeholder:text-gray-400"
+              className="mt-1"
             />
           </div>
 
@@ -238,7 +137,7 @@ export default function SignUpPage() {
               placeholder="your.email@example.com"
               value={formData.email}
               onChange={handleChange}
-              className="mt-1 placeholder:text-sm sm:placeholder:text-sm placeholder:text-gray-400"
+              className="mt-1"
             />
           </div>
 
@@ -248,101 +147,43 @@ export default function SignUpPage() {
               id="phone"
               name="phone"
               type="tel"
-              placeholder="Enter your cellphone number"
+              placeholder="0812345678"
               value={formData.phone}
               onChange={handleChange}
               required
-              className="mt-1 text-sm sm:text-base placeholder:text-sm sm:placeholder:text-sm placeholder:text-gray-400"
+              className="mt-1"
             />
-          </div>
-
-          {/* PASSWORD */}
-          <div className="relative">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="********"
-              value={formData.password}
-              onChange={handleChange}
-              onFocus={handlePasswordFocus}
-              onBlur={handlePasswordBlur}
-              required
-              minLength={8}
-              pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}"
-              // Border color while typing/focused: red if invalid, green if valid, otherwise default
-              className={`mt-1 text-sm sm:text-base placeholder:text-sm sm:placeholder:text-base placeholder:text-gray-400
-                ${isPasswordFocused && passwordValid === false ? "border-red-600" : ""}
-                ${isPasswordFocused && passwordValid === true ? "border-green-600 text-green-700" : ""}`}
-            />
-            <button
-              type="button"
-              className="absolute right-2 top-[50%] -translate-y-[10%] sm:-translate-y-[40%] text-gray-450"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
-            </button>
-          </div>
-
-          {/* when invalid while focused show brief single-line message under input (keeps layout stable) */}
-            {isPasswordFocused && passwordValid === false && (
-              <p className="text-sm mt-1 text-red-600">
-                Password must be at least 8 characters, include an uppercase & lower case, a number and a special character.
-              </p>
-            )}
-
-          {/* CONFIRM PASSWORD */}
-          <div className="relative">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type={showConfirmPassword ? "text" : "password"}
-              placeholder="********"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              onFocus={handleConfirmFocus}
-              onBlur={handleConfirmBlur}
-              required
-              className={`mt-1 text-sm sm:text-base placeholder:text-sm sm:placeholder:text-base placeholder:text-gray-400
-                ${isConfirmFocused && confirmValid === false ? "border-red-600" : ""}
-                ${isConfirmFocused && confirmValid === true ? "border-green-600 text-green-700" : ""}`}
-            />
-            <button
-              type="button"
-              className="absolute right-2 top-1/2 -translate-y-[10%] sm:-translate-y-[40%] text-gray-450"
-              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            >
-              {showConfirmPassword ? <Eye size={18} /> : <EyeOff size={18} />}
-            </button>
-            {isConfirmFocused && confirmValid === false && (
-              <p className="text-sm mt-1 text-red-600">Passwords do not match.</p>
-            )}
           </div>
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
-          <Button type="submit" className="w-full bg-[#003262] hover:bg-[#003262] active:bg-[#003262]" disabled={loading}>
+          <Button
+            type="submit"
+            className="w-full bg-[#003262]"
+            disabled={loading}
+          >
             {loading ? "Creating..." : "Sign Up"}
           </Button>
         </form>
 
-        <div className="mt-2 text-center text-sm">
+        <div className="mt-3 text-center text-sm">
           <p className="text-gray-700">
             Already have an account?{" "}
-            <Link href="/login" className="text-[#003262] hover:underline font-semibold">
+            <Link
+              href="/login"
+              className="text-[#003262] hover:underline font-semibold"
+            >
               Login
             </Link>
           </p>
         </div>
 
-        <div className="mt-0">
-          <Link href="/" className="text-[#003262] hover:underline text-sm flex items-center justify-center">
+        <div className="mt-2 text-center">
+          <Link href="/" className="text-[#003262] hover:underline text-sm">
             ← Back to Home
           </Link>
         </div>
       </Card>
     </div>
-  )
+  );
 }
