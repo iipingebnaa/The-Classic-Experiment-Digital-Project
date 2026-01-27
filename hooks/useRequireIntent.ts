@@ -21,6 +21,9 @@ export function useRequireIntent() {
         case INTENTS.SUBMIT_ORDER:
           router.replace("/my-orders");
           break;
+
+        case INTENTS.GO_TO_ORDER:
+          router.replace("/order"); 
        
         default:
           break;
