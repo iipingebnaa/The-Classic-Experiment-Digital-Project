@@ -9,11 +9,11 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
-import {
-  signupStart,
-  signupSuccess,
-  signupFailure,
-} from "../redux/auth/authSlice"; // adjust path if needed
+import { signupStart, signupSuccess, signupFailure,} from "../redux/auth/authSlice"; // adjust path if needed
+import { MESSAGES } from "@/constants/messages";
+import { useRequireIntent } from "@/hooks";
+import { toast } from "sonner";
+
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -28,28 +28,49 @@ export default function SignUpPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  useRequireIntent();
+
   const namibiaMobileRegex = /^(?:\+264|0)(81|83|84|85)\d{7}$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const normalizePhoneToLocal = (phone: string) => {
+    let digits = phone.replace(/\D/g, "");
+    if (digits.startsWith("264") && digits.length === 11) return "0" + digits.slice(3);
+    if (digits.startsWith("0") && digits.length === 10) return digits;
+    if (digits.length === 9 && digits.startsWith("8")) return "0" + digits;
+    return digits;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError("");
-  setLoading(true);
-  dispatch(signupStart());
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    dispatch(signupStart());
 
   try {
-    const sanitizedPhone = formData.phone.replace(/\s+/g, "");
-    const names = formData.fullName.trim().split(" ");
+      const localPhone = normalizePhoneToLocal(formData.phone);
+      const names = formData.fullName.trim().split(" ");
 
-    // 1️⃣ Check if customer already exists
+      // Validate phone
+      if (!namibiaMobileRegex.test(localPhone)) {
+        throw new Error(MESSAGES.INVALID_PHONE);
+      }
+
+      // Validate email if provided
+      if (formData.email && !emailRegex.test(formData.email)) {
+        throw new Error(MESSAGES.INVALID_EMAIL);
+      }
+
+    // 1Check if customer already exists
     const checkRes = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/customers?company=${process.env.NEXT_PUBLIC_COMPANY_ID}&phone_number=${encodeURIComponent(
-        sanitizedPhone
+        localPhone
       )}`
     );
 
@@ -58,16 +79,17 @@ export default function SignUpPage() {
     if (checkRes.ok && existingData.length > 0) {
       // Customer exists → Welcome Back page
       dispatch(signupSuccess(existingData[0]));
-      router.push("/welcome"); // <-- your page for returning customers
+      toast.info(MESSAGES.ACCOUNT_EXISTS, { duration: 6000})
+      router.push("/welcome"); 
       return;
     }
 
-    // 2️⃣ Customer does not exist → create
+    // Customer does not exist → create
     const payload = {
       company: process.env.NEXT_PUBLIC_COMPANY_ID,
       first_name: names[0] || ".",
       last_name: names.length > 1 ? names.slice(1).join(" ") : ".",
-      phone_number: sanitizedPhone,
+      phone_number: localPhone,
       email: formData.email || "",
     };
 
@@ -83,13 +105,13 @@ export default function SignUpPage() {
     );
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Signup failed");
+    if (!res.ok) throw new Error(data.message || MESSAGES.SIGNUP_FAILURE);
 
     dispatch(signupSuccess(data));
     router.push("/welcome"); // <-- same page for new customers
   } catch (err: any) {
     dispatch(signupFailure(err.message));
-    setError(err.message || "Failed to create account. Please try again.");
+    setError(err.message || MESSAGES.FAILED_ACCOUNT_CREATION);
   } finally {
     setLoading(false);
   }
