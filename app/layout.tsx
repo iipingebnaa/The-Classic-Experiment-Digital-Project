@@ -4,8 +4,6 @@ import { Poppins } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
-import { Provider } from "react-redux";
-import { store } from "./redux/store";
 import ReduxProvider from "./redux/ReduxProvider";
 import { Toaster } from "sonner";
 
