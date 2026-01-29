@@ -1,77 +1,59 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { useRouter } from "next/navigation"
+import { useDispatch, useSelector } from "react-redux"
+
 import Header from "@/components/header"
 import ContactSection from "@/components/contact-section"
 import WhatsAppButton from "@/components/whatsapp-button"
-import { useRouter } from "next/navigation"
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister"
 import UnderConstructionOverlay from "@/components/UnderConstructionOverlay"
 
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+
+import { selectIsAuthenticated } from "./redux/auth/authSlice"
+import { usePWAInstall } from "@/hooks/usePWAInstall"
+import HeroBubbles from "@/components/HeroBubbles"
+import { INTENTS } from "@/constants/intents"
+import { setIntent } from "./redux/intent/intentSlice"
+import { AppDispatch } from "./redux/store"
+
 export default function Home() {
   const router = useRouter()
+  const isAuthenticated = useSelector(selectIsAuthenticated)
+  const dispatch = useDispatch<AppDispatch>();
+
+  
   const [menuOpen, setMenuOpen] = useState(false)
   const [expandedCard, setExpandedCard] = useState<number | null>(null)
   const [underConstruction, setUnderConstruction] = useState(false)
-
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
-  const [showInstallButton, setShowInstallButton] = useState(false)
   const [showUpdateButton, setShowUpdateButton] = useState(false)
 
+  const { showInstallButton, installApp } = usePWAInstall()
+  
   const triggerUnderConstruction = () => setUnderConstruction(true)
   const closeUnderConstruction = () => setUnderConstruction(false)
 
+
   const handleOrderNow = () => {
-    
+    if (!isAuthenticated) {
+      const orderIntent = { action: INTENTS.GO_TO_ORDER};
+      
+      dispatch(setIntent(orderIntent));
+
+      router.push("/login") 
+      return
+    }
     router.push("/order") 
   }
 
-  /*const handleOrderNow = () => {
-  triggerUnderConstruction()
-}*/
 
-
-  // Detect if app is installed
-  const isAppInstalled = () => {
-    if (window.matchMedia("(display-mode: standalone)").matches) return true
-    if ((window.navigator as any).standalone) return true
-    return false
-  }
-
-  // PWA Install button logic
-  useEffect(() => {
-    // Show install button if app is not installed
-    if (!isAppInstalled()) setShowInstallButton(true)
-
-    const handler = (e: any) => {
-      e.preventDefault()
-      setDeferredPrompt(e)
-      setShowInstallButton(true)
-    }
-
-    const appInstalledHandler = () => {
-      setShowInstallButton(false)
-    }
-
-    window.addEventListener("beforeinstallprompt", handler)
-    window.addEventListener("appinstalled", appInstalledHandler)
-
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handler)
-      window.removeEventListener("appinstalled", appInstalledHandler)
-    }
-  }, [])
 
   const handleInstallApp = async () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt()
-      const { outcome } = await deferredPrompt.userChoice
-      console.log("User choice:", outcome)
-      setDeferredPrompt(null)
-      setShowInstallButton(false)
-    } else {
+    const installed = await installApp()
+    if (!installed) {
       triggerUnderConstruction()
     }
   }
@@ -212,28 +194,8 @@ export default function Home() {
             />
 
             {/* Bubbles */}
-            <div className="absolute inset-0 pointer-events-none">
-  {[...Array(18)].map((_, i) => {
-    const size = Math.random() * 20 + 15; // size in px
-    const delay = Math.random() * 1; // delay in seconds
-    const duration = Math.random() * 10 + 10; // duration in seconds
-    const left = Math.random() * 100; // horizontal position
-    return (
-      <div
-        key={i}
-        className="absolute rounded-full bg-white/50 border border-white/30"
-        style={{
-          width: `${size}px`,
-          height: `${size}px`,
-          left: `${left}%`,
-          bottom: `-${size}px`, // start just below the hero section
-          animation: `floatUp ${duration}s linear ${delay}s infinite`,
-          opacity: Math.random() * 0.6 + 0.3,
-        }}
-      />
-    )
-  })}
-</div>  
+            <HeroBubbles />
+
 
             {/* Process Flow */}
             <div className="absolute top-8 sm:top-12 md:top-16 left-2 right-2 sm:left-4 sm:right-4 md:left-16 md:right-16 lg:left-32 lg:right-32 bg-white/70 backdrop-blur-sm leading-7 border-none opacity-85 py-2 sm:py-3 px-2 sm:px-4 rounded-lg">
@@ -294,7 +256,7 @@ export default function Home() {
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-2">
               <Button
                 onClick={handleOrderNow}
-                className="bg-[#003262] hover:bg-[#003262] text-white px-6 sm:px-8 py-2 rounded-full font-semibold shadow-lg text-sm sm:text-base"
+                className="bg-[#003262] hover:bg-[#003262] text-white px-6 sm:px-8 py-2 rounded-full font-semibold shadow-lg text-md md:text-base"
               >
                 Order Now
               </Button>
@@ -412,6 +374,7 @@ export default function Home() {
         </div>
 
         <ContactSection />
+        
       </div>
     </>
   )

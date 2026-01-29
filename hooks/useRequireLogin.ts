@@ -2,25 +2,22 @@
 
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { setIntent } from "@/app/redux/ui/uiSlice";
-import { UseSelector,useDispatch } from "react-redux";
+import { setIntent } from "@/app/redux/intent/intentSlice";
+import { useDispatch } from "react-redux";
 
 
-interface RequireIntentOptions{
-  intentType: string;
-  redirectTo: string;
+interface Intent {
+  action: string;
+  payload?: any;
 }
 
 export function useRequireLogin() {
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const requireLogin = (intent: {
-    action: string;
-    payload?: any;
-  }) => {
+  const requireLogin = (intent: Intent) => {
+
     dispatch(setIntent(intent));
-    localStorage.setItem("intent", JSON.stringify(intent));
 
     toast.info("Please log in to continue", { duration: 3000 });
     router.push("/login");

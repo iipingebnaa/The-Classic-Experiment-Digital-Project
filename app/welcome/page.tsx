@@ -3,14 +3,40 @@
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { useSelector } from "react-redux"
-import { RootState } from "@/app/redux/store"
+import { useSelector, useDispatch } from "react-redux"
+import { RootState, AppDispatch } from "@/app/redux/store"
+import { selectIntent, clearIntent } from "../redux/intent/intentSlice"
+import { INTENTS } from "@/constants/intents"
+import { useEffect, useState } from "react"
 
 export default function WelcomePage() {
   const router = useRouter()
+  const dispatch = useDispatch<AppDispatch>()
 
   // Get customer info from Redux
   const customer = useSelector((state: RootState) => state.auth.customer)
+  const intent = useSelector(selectIntent)
+
+  const [buttonText, setButtonText] = useState("Start Order")
+
+  useEffect(() => {
+    const stored = localStorage.getItem("intent")
+    let parsedIntent = intent || (stored ? JSON.parse(stored) : null)
+
+    if (parsedIntent?.action === INTENTS.SUBMIT_ORDER || parsedIntent?.action === INTENTS.GO_TO_ORDER) {
+      setButtonText("Continue Order")
+    } else {
+      setButtonText("Start Order")
+    }
+  }, [intent])
+
+  const handleOrderClick = () => {
+    router.push("/order")
+
+      dispatch(clearIntent())
+      localStorage.removeItem("intent")
+    
+  }
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
@@ -25,8 +51,9 @@ export default function WelcomePage() {
 
         <div className="mb-6 text-center">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#003262] mb-2">
-            Welcome Back!{customer?.first_name ? ` ${customer.first_name}` : ""}
+            Welcome Back!
           </h1>
+          
           <p className="text-[#003262]">
             Ready to place your laundry order?
           </p>
@@ -34,10 +61,10 @@ export default function WelcomePage() {
 
         <div className="flex flex-col gap-4">
           <Button
-            onClick={() => router.push("/order")}
+            onClick={handleOrderClick}
             className="w-full bg-[#003262] hover:bg-[#003262] rounded-full"
           >
-            Start Order
+            {buttonText}
           </Button>
           <Button
             onClick={() => router.push("/login")}

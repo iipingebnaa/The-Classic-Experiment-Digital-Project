@@ -12,8 +12,9 @@ import { useDispatch, useSelector } from "react-redux"
 import { loginFailure, loginStart, loginSuccess, selectError, selectLoading } from "../redux/auth/authSlice"
 import type { AppDispatch } from "../redux/store"
 import { toast } from "sonner"
-import { useRequireIntent } from "@/hooks/useRquireIntent"
-
+import { useRequireIntent } from "@/hooks/useRequireIntent"
+import { MESSAGES } from "@/constants/messages"
+import { clearIntent, selectIntent } from "../redux/intent/intentSlice"
 
 
 export default function LoginPage() {
@@ -24,6 +25,8 @@ export default function LoginPage() {
   const error = useSelector(selectError)
 
   const [phoneNumber, setPhoneNumber] = useState("")
+
+  const intent = useSelector(selectIntent)
   
 
   // Namibia mobile number regex (local or international)
@@ -55,7 +58,7 @@ export default function LoginPage() {
 
 
     if (!phoneNumber) {
-      dispatch(loginFailure("Please enter your phone number."))
+      dispatch(loginFailure(MESSAGES.PHONE_REQUIRED))
       return
     }
 
@@ -63,7 +66,7 @@ export default function LoginPage() {
     console.log("Normalized phone:", localPhone)
 
     if (!namibiaMobileRegex.test(localPhone)) {
-      dispatch(loginFailure("Please enter a valid phone number."))
+      dispatch(loginFailure(MESSAGES.PHONE_INVALID))
       return
     }
 
@@ -77,7 +80,7 @@ export default function LoginPage() {
       console.log("Raw response status:", response.status)
 
       if (!response.ok) {
-        throw new Error("Request failed")
+        throw new Error(MESSAGES.FAILED_REQUEST)
       }
 
       const data = await response.json();
@@ -88,7 +91,9 @@ export default function LoginPage() {
       const customer = data?.[0] || null;
 
       if (!customer) {
-        toast.error("Phone number not found. Please sign up first.",
+        dispatch(loginFailure(MESSAGES.PHONE_NUMBER_NOT_FOUND))
+
+        toast.error(MESSAGES.PHONE_NUMBER_NOT_FOUND,
           { duration: 8000 }
         );
 
@@ -101,11 +106,17 @@ export default function LoginPage() {
 
       dispatch(loginSuccess(customer))
 
-      toast.success("Login successful!")
-      router.push("/welcome")  
+      toast.success(MESSAGES.LOGIN_SUCCESS)
+      
+      if (intent?.action === "SUBMIT_ORDER") {
+        dispatch(clearIntent());
+        router.replace("/order"); // resume the order page
+      } else {
+        router.replace("/welcome"); // default landing page
+      }
     } catch (error) {
       console.error("Login error:", error)
-      dispatch(loginFailure("Something went wrong. Please try again."))
+      dispatch(loginFailure(MESSAGES.LOGIN_ERROR))
     }
   }
 

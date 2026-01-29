@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { clearIntent, selectIntent } from "@/app/redux/ui/uiSlice";
+import { clearIntent, selectIntent } from "@/app/redux/intent/intentSlice";
 import { INTENTS } from "@/constants/intents";
 import type { AppDispatch } from "@/app/redux/store";
 
@@ -24,7 +24,7 @@ export function useRequireIntent() {
 
         case INTENTS.GO_TO_ORDER:
           router.replace("/order"); 
-       
+          
         default:
           break;
       }

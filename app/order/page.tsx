@@ -3,36 +3,22 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  addItem,
-  removeItem,
-  resetCurrentItem,
-  setCurrentItemField,
-  setPickupDetails,
-  selectCurrentItem,
-  selectOrderItems,
-  selectPickupDetails,
-  submitOrder,
-} from "../redux/order/orderSlice";
-import { selectCustomer } from "../redux/auth/authSlice";
+import { addItem, removeItem, resetCurrentItem, setCurrentItemField, setPickupDetails, selectCurrentItem, selectOrderItems, selectPickupDetails, submitOrder, } from "../redux/order/orderSlice";
+import { selectCustomer, selectIsAuthenticated } from "../redux/auth/authSlice";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, } from "@/components/ui/select";
 import Header from "@/components/header";
 import WhatsAppButton from "@/components/whatsapp-button";
 import { Trash2 } from "lucide-react";
 import { API } from "@/config/api";
 import type { AppDispatch } from "../redux/store";
-
+import { toast } from "sonner";
+import { MESSAGES } from "@/constants/messages";
+import { setIntent } from "../redux/intent/intentSlice";
 
 
 interface BackendItem {
@@ -52,10 +38,11 @@ interface Item {
 
 
 export default function OrderPage() {
+
   const router = useRouter();
+
   const dispatch = useDispatch<AppDispatch>();
 
-  const customer = useSelector(selectCustomer);
   const currentItem = useSelector(selectCurrentItem);
   const orderItems = useSelector(selectOrderItems);
   const pickup = useSelector(selectPickupDetails);
@@ -66,74 +53,76 @@ export default function OrderPage() {
   const [itemsCatalog, setItemsCatalog] = useState<Item[]>([]);
   const [selectedPrice, setSelectedPrice] = useState(0);
 
+  const isAuthenticated = useSelector(selectIsAuthenticated)
+
   const softenerFlavors = ["Lavender", "Fresh Linen", "Ocean Breeze", "No Preference"];
 
-  // ================= FETCH ITEMS =================
+
   useEffect(() => {
-  const fetchItems = async () => {
-    try {
-      const url = API.getItems();
-      const response = await fetch(url);
-      if (!response.ok) throw new Error("Failed to fetch items");
-
-      
-      const data: BackendItem[] = await response.json();
-
-      // Map to frontend Item type
-      const itemsMapped: Item[] = data.map(item => ({
-        id: item._id,
-        name: item.name,
-        description: item.description,
-        price: item.unit_price,
-      }));
-
-      // Remove duplicates by id or name
-      const uniqueItems: Item[] = Array.from(
-        new Map(
-          itemsMapped.map(item => {
-            const sameName = itemsMapped.find(i => i.id !== item.id && i.name === item.name);
-            return [
-             sameName ? item.description ?? item.name : item.name, 
-             {
-              ...item,
-              displayName: sameName ? item.description ?? item.name : item.name, 
-            },
-           ];
-        })
-        ).values()
-      );
+    const fetchItems = async () => {
+      try {
+        const url = API.getItems();
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(MESSAGES.ITEMS_FETCH_FAILED);
 
 
-      setItemsCatalog(uniqueItems);
-      
-    } catch (err) {
-      console.error(err);
-      setItemsCatalog([]);
-    } finally {
-      setLoadingItems(false); // done fetching
-    }
-  };
-  fetchItems();
+        const data: BackendItem[] = await response.json();
+
+        // Map to frontend Item type
+        const itemsMapped: Item[] = data.map(item => ({
+          id: item._id,
+          name: item.name,
+          description: item.description,
+          price: item.unit_price,
+        }));
+
+        // Remove duplicates by id or name
+        const uniqueItems: Item[] = Array.from(
+          new Map(
+            itemsMapped.map(item => {
+              const sameName = itemsMapped.find(i => i.id !== item.id && i.name === item.name);
+              return [
+                sameName ? item.description ?? item.name : item.name,
+                {
+                  ...item,
+                  displayName: sameName ? item.description ?? item.name : item.name,
+                },
+              ];
+            })
+          ).values()
+        );
+
+
+        setItemsCatalog(uniqueItems);
+
+      } catch (err) {
+        console.error(err);
+        setItemsCatalog([]);
+      } finally {
+        setLoadingItems(false); // done fetching
+      }
+    };
+    fetchItems();
   }, []);
 
-  
 
-  // ================= HANDLE ITEM CHANGE =================
+
+  //Changing an item
   const handleItemChange = (value: string) => {
     dispatch(setCurrentItemField({ field: "serviceType", value }));
     const foundItem = itemsCatalog.find((i) => i.name === value);
     setSelectedPrice(foundItem?.price ?? 0);
   };
 
-  // ================= ADD ITEM =================
+  // Adding an item
   const handleAddItem = () => {
     if (!currentItem.serviceType || !currentItem.itemCount) return;
 
     // Find the selected item from catalog
-  const selected = itemsCatalog.find(
-    (i) => String(i.id) === currentItem.serviceType
-  );
-  if (!selected) return;
+    const selected = itemsCatalog.find(
+      (i) => String(i.id) === currentItem.serviceType
+    );
+    if (!selected) return;
 
     dispatch(
       addItem({
@@ -150,15 +139,24 @@ export default function OrderPage() {
     setSelectedPrice(0);
   };
 
-  // ================= SUBMIT ORDER =================
-  const handleSubmit = async () => {
-    if (orderItems.length === 0) {
-      alert("Please add at least one item");
-      return;
-    }
 
-    if (!customer) {
-      alert("Customer not found. Please login again.");
+  const handleSubmit = async () => {
+
+    if (!isAuthenticated) {
+      dispatch(
+      setIntent({
+        action: "SUBMIT_ORDER",
+        payload: orderItems,
+    })
+  );
+  toast.info(MESSAGES.LOGIN_REQUIRED_ORDER, { duration: 8000 });
+  router.push("/login");
+  return;
+}
+
+    //No items added
+    if (orderItems.length === 0) {
+      toast.warning(MESSAGES.ORDER_ITEM_REQUIRED);
       return;
     }
 
@@ -167,16 +165,16 @@ export default function OrderPage() {
       await dispatch(submitOrder());
       router.push("/my-orders");
     } catch (err) {
-      console.error("Failed to submit order", err);
-      alert("Failed to submit order");
+      console.error(MESSAGES.ORDER_SUBMIT_FAILED, err);
+      toast.error(MESSAGES.ORDER_SUBMIT_FAILED);
     } finally {
       setLoading(false);
     }
   };
 
   const totalAmount = orderItems.reduce(
-  (sum, item) => sum + item.price * item.itemCount,
-  0
+    (sum, item) => sum + item.price * item.itemCount,
+    0
   );
 
 
@@ -199,8 +197,8 @@ export default function OrderPage() {
                 <div className="w-[var(--radix-select-trigger-width)]">
                   <Label htmlFor="serviceType">Service Type</Label>
                   <Select
-                    value={currentItem.serviceType || ""} 
-                    onValueChange={(value) => 
+                    value={currentItem.serviceType || ""}
+                    onValueChange={(value) =>
                       dispatch(setCurrentItemField({ field: "serviceType", value }))
                     }
                   >
@@ -211,10 +209,10 @@ export default function OrderPage() {
                     <SelectContent className="w-[var(--radix-select-trigger-width)]">
                       {itemsCatalog.length > 0
                         ? itemsCatalog.map((item) => (
-                            <SelectItem key={item.id} value={item.id}>
-                              {item.displayName}
-                            </SelectItem>
-                          ))
+                          <SelectItem key={item.id} value={item.id}>
+                            {item.displayName}
+                          </SelectItem>
+                        ))
                         : (
                           <SelectItem key="empty" value="none" disabled>
                             Loading...
@@ -233,7 +231,7 @@ export default function OrderPage() {
                       dispatch(setCurrentItemField({ field: "itemCount", value: e.target.value }))
                     }
                   />
-                </div>  
+                </div>
 
                 <div>
                   <Label>Softener Flavor</Label>
@@ -272,7 +270,7 @@ export default function OrderPage() {
                       <tr>
                         <th className="p-2 text-left">Item</th>
                         <th className="p-2">Unit Price</th>
-                        <th className="p-2">Qty</th>  
+                        <th className="p-2">Qty</th>
                         <th className="p-2">Softener</th>
                         <th className="p-2">Subtotal</th>
                         <th className="p-2">Action</th>
@@ -290,14 +288,14 @@ export default function OrderPage() {
                           <td className="p-2 text-center">{item.itemCount}</td>
                           <td className="p-2 text-center">{item.softenerFlavor || "-"}</td>
                           <td className="p-2 text-center font-semibold">
-                              N${(item.price * item.itemCount).toFixed(2)}
+                            N${(item.price * item.itemCount).toFixed(2)}
                           </td>
                           <td className="p-2 text-center">
-                          
+
                             <Trash2
                               size={20}
                               color="#dc2626"
-                              className="text-right cursor-pointer hover:text-red-700"
+                              className=" cursor-pointer hover:text-red-700 mx-auto"
                               onClick={() => dispatch(removeItem(item.id))}
                             />
 
@@ -306,7 +304,7 @@ export default function OrderPage() {
                         </tr>
                       ))}
 
-                    
+
 
                     </tbody>
                   </table>
@@ -314,15 +312,15 @@ export default function OrderPage() {
               )}
 
               {orderItems.length > 0 && (
-              <div className="mt-4 flex justify-start">
-                <div>
-                  <span className="text-sm text-gray-900">Total Amount:</span>
-                  <div className="text-lg font-bold text-green-900">
-                  N${totalAmount.toFixed(2)}
+                <div className="mt-4 flex justify-start">
+                  <div>
+                    <span className="text-sm text-gray-900">Total Amount:</span>
+                    <div className="text-lg font-bold text-green-900">
+                      N${totalAmount.toFixed(2)}
+                    </div>
                   </div>
                 </div>
-              </div>
-)}
+              )}
 
 
               <Button
@@ -340,7 +338,7 @@ export default function OrderPage() {
               <Label className="text-base">Special Instructions</Label>
               <Textarea
                 placeholder="Enter your instructions here, if any"
-                className="mt-1 min-h-[150px] text-base text-gray-100"
+                className="mt-1 min-h-[150px] text-base text-gray-800"
                 value={currentItem.specialInstructions}
                 onChange={(e) =>
                   dispatch(setCurrentItemField({ field: "specialInstructions", value: e.target.value }))
@@ -368,35 +366,35 @@ export default function OrderPage() {
                   dispatch(setPickupDetails({ ...pickup, pickupAddress: e.target.value }))
                 }
               />
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 flex justify-center">
-  <div className="flex flex-col w-1/2">
-    <Label className="text-md mb-1" htmlFor="pickupDate">
-      Date
-    </Label>
-    <Input
-      id="pickupDate"
-      type="date"
-      value={pickup.pickupDate}
-      onChange={(e) =>
-        dispatch(setPickupDetails({ ...pickup, pickupDate: e.target.value }))
-      }
-    />
-  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 flex justify-center">
+                <div className="flex flex-col w-1/2">
+                  <Label className="text-md mb-1" htmlFor="pickupDate">
+                    Date
+                  </Label>
+                  <Input
+                    id="pickupDate"
+                    type="date"
+                    value={pickup.pickupDate}
+                    onChange={(e) =>
+                      dispatch(setPickupDetails({ ...pickup, pickupDate: e.target.value }))
+                    }
+                  />
+                </div>
 
-  <div className="flex flex-col w-1/2">
-    <Label className="text-md mb-1" htmlFor="pickupTime">
-      Time
-    </Label>
-    <Input
-      id="pickupTime"
-      type="time"
-      value={pickup.pickupTime}
-      onChange={(e) =>
-        dispatch(setPickupDetails({ ...pickup, pickupTime: e.target.value }))
-      }
-    />
-  </div>
-</div>
+                <div className="flex flex-col w-1/2">
+                  <Label className="text-md mb-1" htmlFor="pickupTime">
+                    Time
+                  </Label>
+                  <Input
+                    id="pickupTime"
+                    type="time"
+                    value={pickup.pickupTime}
+                    onChange={(e) =>
+                      dispatch(setPickupDetails({ ...pickup, pickupTime: e.target.value }))
+                    }
+                  />
+                </div>
+              </div>
               <div className="flex justify-center gap-4 mt-6">
                 <Button className="w-1/2 sm:w-[180px] bg-[#408ac8] hover:bg-[#408ac8] text-white rounded-full" onClick={() => setStep(2)}>
                   Back
