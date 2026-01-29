@@ -19,6 +19,7 @@ import HeroBubbles from "@/components/HeroBubbles"
 import { INTENTS } from "@/constants/intents"
 import { setIntent } from "./redux/intent/intentSlice"
 import { AppDispatch } from "./redux/store"
+import PricingSection from "@/components/PricingSection"
 
 export default function Home() {
   const router = useRouter()
@@ -65,109 +66,7 @@ export default function Home() {
     }
   }
 
-  const pricingData = [
-    {
-      title: "Baskets",
-      image: "/assets/images/white-laundry-basket-with-clean-clothes.png",
-      items: [
-        { name: "1kg - 3kg Small Basket", price: "N$180" },
-        { name: "4kg - 7kg Medium Basket", price: "N$300" },
-        { name: "8kg - 10kg Large/big Basket", price: "N$425" },
-      ],
-    },
-    {
-      title: "Basket Iron Only",
-      image: "/assets/images/steam-iron-pressing-clothes-in-laundry-basket.png",
-      items: [
-        { name: "Small", price: "N$130" },
-        { name: "Medium", price: "N$275" },
-        { name: "Large", price: "N$330" },
-      ],
-    },
-    {
-      title: "Ladies' wear",
-      image: "/assets/images/women-s-clothing-laundry-items-hanging-neatly.jpg",
-      items: [
-        { name: "Shirt short sleeve", price: "N$17" },
-        { name: "Shirt long sleeve", price: "N$20" },
-        { name: "T-shirt", price: "N$15" },
-        { name: "Top", price: "N$15" },
-        { name: "Trouser/jeans", price: "N$25" },
-        { name: "Jersey", price: "N$25" },
-        { name: "Jacket", price: "N$40" },
-        { name: "Pullover/sweater", price: "N$20" },
-        { name: "Skirt", price: "N$15" },
-        { name: "Shorts", price: "N$15" },
-        { name: "Pyjamas (2pcs)", price: "N$25" },
-        { name: "Socks (per pair)", price: "N$10" },
-        { name: "Swimsuit", price: "N$20" },
-        { name: "Dress", price: "N$20" },
-      ],
-    },
-    {
-      title: "Men's wear",
-      image: "/assets/images/men-s-clothing-shirts-and-pants-neatly-folded.jpg",
-      items: [
-        { name: "Shirt short sleeve", price: "N$17" },
-        { name: "Shirt long sleeve", price: "N$20" },
-        { name: "T-shirt", price: "N$15" },
-        { name: "Trouser/jean", price: "N$25" },
-        { name: "Shorts", price: "N$15" },
-        { name: "Vests/under pants", price: "N$15" },
-        { name: "Socks (pair)", price: "N$10" },
-        { name: "Pyjamas (2pcs)", price: "N$25" },
-        { name: "Jersey", price: "N$25" },
-        { name: "Jacket", price: "N$40" },
-        { name: "Sweater/pullover", price: "N$20" },
-      ],
-    },
-    {
-      title: "Blankets/Duvet inners",
-      image: "/assets/images/cozy-blankets-and-duvet-inners-folded-on-shelf.webp",
-      items: [
-        { name: "Single", price: "N$60" },
-        { name: "Double", price: "N$100" },
-        { name: "Queen Comforters / king", price: "N$145" },
-        { name: "Winter Blanket", price: "N$220" },
-        { name: "Hand towel", price: "N$15" },
-        { name: "Bath towel", price: "N$20" },
-      ],
-    },
-    {
-      title: "Beddings",
-      image: "/assets/images/clean-bed-sheets-and-pillowcases-neatly-stacked.png",
-      items: [
-        { name: "Throw (Medium)", price: "N$50" },
-        { name: "Heavy Throw", price: "N$75" },
-        { name: "Flat sheet / Fitted sheet", price: "N$35" },
-        { name: "Duvet cover", price: "N$35" },
-        { name: "Pillowcase", price: "N$15" },
-        { name: "Continental Pillow inner", price: "N$45" },
-        { name: "Standard Pillow inner", price: "N$35" },
-      ],
-    },
-    {
-      title: "Others",
-      image: "/assets/images/formal-suit-and-coat-hanging-on-rack.webp",
-      items: [
-        { name: "Suit", price: "N$120" },
-        { name: "Winter Coat (Short)", price: "N$60" },
-        { name: "Winter Coat (Long)", price: "N$75" },
-        { name: "Blazer", price: "N$60" },
-        { name: "Graduation Gown", price: "N$120" },
-        { name: "Official Pants", price: "N$25" },
-      ],
-    },
-    {
-      title: "Curtains",
-      image: "/assets/images/clean-curtains-hanging-elegantly.jpg",
-      items: [
-        { name: "Normal length", price: "N$35" },
-        { name: "Extra length", price: "N$60" },
-      ],
-    },
-  ]
-
+  
   return (
     <>
       <div className="min-h-screen bg-[#9ECAE1]" id="home">
@@ -271,67 +170,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Pricing Cards */}
-        <div className="px-6 pb-6 pt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-5 md:gap-6">
-            {pricingData.map((category, index) => {
-              const isExpanded = expandedCard === index
-              const displayItems = isExpanded ? category.items : category.items.slice(0, 3)
-
-              return (
-                <Card
-                  key={index}
-                  className="bg-white rounded-lg overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.5)] hover:-translate-y-2 transition-all duration-300 p-0 flex flex-col h-[100%] gap-px"
-                >
-                  <div className="relative h-36 sm:h-40 md:h-44 overflow-hidden">
-                    <img
-                      src={category.image || "/placeholder.svg"}
-                      alt={category.title}
-                      className="w-full object-cover rounded-b-lg h-full "
-                    />
-                  </div>
-
-                  <div className="p-1.5 sm:p-2 flex-1 flex flex-col">
-                    <h3 className="font-bold text-gray-900 mt-0 mb-1.5 text-sm sm:text-base">
-                      {category.title}
-                    </h3>
-
-                    <div className="flex-1 flex flex-col gap-2">
-                      {displayItems.map((item, idx) => (
-                        <div key={idx} className="flex justify-between items-center gap-2">
-                          <span className="flex-1 text-left text-gray-900 text-xs sm:text-sm truncate">
-                            {item.name}
-                          </span>
-                          <span className="font-semibold text-[#003269] text-xs sm:text-sm flex-shrink-0">
-                            {item.price}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {category.items.length > 5 && !isExpanded && (
-                      <button
-                        onClick={() => setExpandedCard(index)}
-                        className="mt-2 text-[#003262] font-semibold text-sm underline hover:brightness-110 transition self-start bg-transparent px-0 py-0"
-                      >
-                        More
-                      </button>
-                    )}
-
-                    {isExpanded && (
-                      <button
-                        onClick={() => setExpandedCard(null)}
-                        className="mt-2 text-[#003262] font-semibold text-sm underline hover:brightness-110 transition self-start bg-transparent px-0 py-0"
-                      >
-                        Show Less
-                      </button>
-                    )}
-                  </div>
-                </Card>
-              )
-            })}
-          </div>
-        </div>
+        <PricingSection />
 
         {/* Fast Service Banner */}
         <div className="text-center py-3 sm:py-4">
