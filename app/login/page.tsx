@@ -12,7 +12,6 @@ import { useDispatch, useSelector } from "react-redux"
 import { loginFailure, loginStart, loginSuccess, selectError, selectLoading } from "../redux/auth/authSlice"
 import type { AppDispatch } from "../redux/store"
 import { toast } from "sonner"
-import { useRequireIntent } from "@/hooks/useRequireIntent"
 import { MESSAGES } from "@/constants/messages"
 import { clearIntent, selectIntent } from "../redux/intent/intentSlice"
 
@@ -51,74 +50,85 @@ export default function LoginPage() {
     return digits // fallback
   }
 
-  useRequireIntent();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  e.preventDefault()
 
-
-    if (!phoneNumber) {
-      dispatch(loginFailure(MESSAGES.PHONE_REQUIRED))
-      return
-    }
-
-    const localPhone = normalizePhoneToLocal(phoneNumber)
-    console.log("Normalized phone:", localPhone)
-
-    if (!namibiaMobileRegex.test(localPhone)) {
-      dispatch(loginFailure(MESSAGES.PHONE_INVALID))
-      return
-    }
-
-    dispatch(loginStart())
-
-    try {
-      const url = API.getCustomerByPhone(localPhone);
-      console.log("Fetching URL:", url) // debug request
-      
-      const response = await fetch(url)
-      console.log("Raw response status:", response.status)
-
-      if (!response.ok) {
-        throw new Error(MESSAGES.FAILED_REQUEST)
-      }
-
-      const data = await response.json();
-
-      console.log("Backend response:", data);
-
-      // Backend returns an array
-      const customer = data?.[0] || null;
-
-      if (!customer) {
-        dispatch(loginFailure(MESSAGES.PHONE_NUMBER_NOT_FOUND))
-
-        toast.error(MESSAGES.PHONE_NUMBER_NOT_FOUND,
-          { duration: 8000 }
-        );
-
-        return
-      }
-
-      // Extract first name from full_name
-      const firstName = customer.full_name?.split(" ")[0] || "";
-      customer.first_name = firstName;
-
-      dispatch(loginSuccess(customer))
-
-      toast.success(MESSAGES.LOGIN_SUCCESS)
-      
-      if (intent?.action === "SUBMIT_ORDER") {
-        dispatch(clearIntent());
-        router.replace("/order"); // resume the order page
-      } else {
-        router.replace("/welcome"); // default landing page
-      }
-    } catch (error) {
-      console.error("Login error:", error)
-      dispatch(loginFailure(MESSAGES.LOGIN_ERROR))
-    }
+  if (!phoneNumber) {
+    dispatch(loginFailure(MESSAGES.PHONE_REQUIRED))
+    return
   }
+
+  const localPhone = normalizePhoneToLocal(phoneNumber)
+  console.log("Normalized phone:", localPhone)
+
+  if (!namibiaMobileRegex.test(localPhone)) {
+    dispatch(loginFailure(MESSAGES.PHONE_INVALID))
+    return
+  }
+
+  dispatch(loginStart())
+
+  try {
+    const url = API.getCustomerByPhone(localPhone);
+    console.log("Fetching URL:", url) // debug request
+    
+    const response = await fetch(url)
+    console.log("Raw response status:", response.status)
+
+    if (!response.ok) {
+      throw new Error(MESSAGES.FAILED_REQUEST)
+    }
+
+    const data = await response.json();
+    console.log("Backend response:", data);
+
+    // Backend returns an array
+    const customer = data?.[0] || null;
+
+    if (!customer) {
+      dispatch(loginFailure(MESSAGES.PHONE_NUMBER_NOT_FOUND))
+      toast.error(MESSAGES.PHONE_NUMBER_NOT_FOUND, { duration: 5000 })
+      return
+    }
+
+    // Extract first name from full_name
+    const firstName = customer.full_name?.split(" ")[0] || "";
+    customer.first_name = firstName;
+
+    dispatch(loginSuccess(customer))
+    toast.success(MESSAGES.LOGIN_SUCCESS)
+
+    // Redirecting after login
+if (intent?.action) {
+  
+  switch (intent.action) {
+    case "GO_TO_ORDER":
+      router.replace("/order");
+      break;
+    case "GO_TO_MY_ORDERS":
+      router.replace("/my-orders");
+      break;
+    default:
+      router.replace("/"); 
+  }
+  dispatch(clearIntent());
+} else {
+  
+  if (customer.isNewUser) {
+    router.replace("/welcome"); 
+  } else {
+    router.replace("/");
+  }
+}
+
+
+  } catch (error) {
+    console.error("Login error:", error)
+    dispatch(loginFailure(MESSAGES.LOGIN_ERROR))
+  }
+}
+
 
 
 
