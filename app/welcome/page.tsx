@@ -21,20 +21,17 @@ export default function WelcomePage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("intent")
-    let parsedIntent = intent || (stored ? JSON.parse(stored) : null)
+    let parsedIntent = stored ? JSON.parse(stored) : null
 
-    if (parsedIntent?.action === INTENTS.SUBMIT_ORDER || parsedIntent?.action === INTENTS.GO_TO_ORDER) {
+    if (parsedIntent?.action === INTENTS.ORDER_IN_PROGRESS) {
       setButtonText("Continue Order")
     } else {
       setButtonText("Start Order")
     }
-  }, [intent])
+  }, [])
 
   const handleOrderClick = () => {
     router.push("/order")
-
-      dispatch(clearIntent())
-      localStorage.removeItem("intent")
     
   }
 
@@ -66,6 +63,7 @@ export default function WelcomePage() {
           >
             {buttonText}
           </Button>
+          
           <Button
             onClick={() => router.push("/login")}
             className="w-full bg-gray-400 rounded-full hover:bg-gray-400"
