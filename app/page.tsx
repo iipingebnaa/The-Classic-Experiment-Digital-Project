@@ -172,11 +172,6 @@ export default function Home() {
 
         <PricingSection />
 
-        {/* Fast Service Banner */}
-        <div className="text-center py-3 sm:py-4">
-          <p className="text-[#003262] font-bold text-lg sm:text-xl">Fast Service: N$60</p>
-        </div>
-
         {/* Note */}
         <div className="text-center px-4 pb-6 sm:pb-6">
           <p className="text-gray-900 text-sm sm:text-base">
