@@ -2,9 +2,9 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const COMPANY_ID = process.env.NEXT_PUBLIC_COMPANY_ID;
 
 export const API = {
-  // =====================
+ 
   // CUSTOMERS
-  // =====================
+ 
 
   // Create customer (SIGNUP)
   createCustomer: `${BASE_URL}/customers`,
@@ -17,9 +17,9 @@ export const API = {
       phoneNumber
     )}`,
 
-  // =====================
+ 
   // AUTH / ACCOUNT
-  // =====================
+ 
   forgotPassword: `${BASE_URL}/forgot-password`,
   resetPassword: `${BASE_URL}/reset-password`,
   verifyCode: `${BASE_URL}/verify-code`,
@@ -53,9 +53,9 @@ export const API = {
       orderId
     )}`,
 
-  // =====================
+ 
   // BILLING
-  // =====================
+ 
   getInvoice: (orderId) =>
     `${BASE_URL}${process.env.NEXT_PUBLIC_API_INVOICE.replace(
       ":orderId",
@@ -64,8 +64,8 @@ export const API = {
 
   createPayment: `${BASE_URL}${process.env.NEXT_PUBLIC_API_PAYMENT}`,
 
-  // =====================
+ 
   // SERVICES
-  // =====================
+ 
   getItems: () => `${BASE_URL}/items?company=${COMPANY_ID}`,
 };

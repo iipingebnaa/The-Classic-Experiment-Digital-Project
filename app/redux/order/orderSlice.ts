@@ -51,7 +51,7 @@ const initialState: OrderState = {
   error: null,
 };
 
-// ---------------- THUNK: submit order ----------------
+
 export const submitOrder = createAsyncThunk(
   "order/submitOrder",
   async (_, { getState, rejectWithValue }) => {

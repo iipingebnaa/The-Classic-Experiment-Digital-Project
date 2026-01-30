@@ -84,7 +84,6 @@ export default function SignUpPage() {
       return;
     }
 
-    // Customer does not exist → create
     const payload = {
       company: process.env.NEXT_PUBLIC_COMPANY_ID,
       first_name: names[0] || ".",

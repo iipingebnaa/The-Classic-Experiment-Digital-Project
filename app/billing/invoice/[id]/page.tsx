@@ -40,7 +40,7 @@ export default function InvoicePage() {
     }))
 
     const subtotal = items.reduce((sum, i) => sum + i.total, 0)
-    const tax = subtotal * 0.15
+    const tax = subtotal * 0
     const total = subtotal + tax
 
     setInvoice({

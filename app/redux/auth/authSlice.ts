@@ -2,8 +2,6 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store";
 
 
-// State definition
-
 interface AuthState {
   isAuthenticated: boolean;
   loading: boolean;
@@ -12,7 +10,6 @@ interface AuthState {
 }
 
 
-// Initial state
 
 const initialState: AuthState = {
   isAuthenticated: false,
@@ -22,13 +19,13 @@ const initialState: AuthState = {
 };
 
 
-// Auth slice
+
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    // ---------- LOGIN ----------
+    
     loginStart: (state) => {
       state.loading = true;
       state.error = null;
@@ -44,7 +41,7 @@ const authSlice = createSlice({
       state.error = action.payload;
     },
 
-    // ---------- SIGNUP (Customer Creation) ----------
+    
     signupStart: (state) => {
       state.loading = true;
       state.error = null;
@@ -53,14 +50,14 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.customer = action.payload;
-      state.isAuthenticated = true; // customer now exists
+      state.isAuthenticated = true; 
     },
     signupFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
     },
 
-    // ---------- LOGOUT ----------
+    
     logout: (state) => {
       state.isAuthenticated = false;
       state.customer = null;
@@ -79,8 +76,6 @@ export const {
   logout,
 } = authSlice.actions;
 
-
-// Selectors
 
 export const selectIsAuthenticated = (state: RootState) =>
   state.auth.isAuthenticated;
