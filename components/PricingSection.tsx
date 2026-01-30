@@ -129,6 +129,8 @@ const PRICING_DATA = [
 
 export default function PricingSection() {
   const [pricingData, setPricingData] = useState<Category[]>(PRICING_DATA);
+  const [fastServicePrice, setFastServicePrice] = useState<string | null>(null);
+  
   const [loading, setLoading] = useState(true);
   const [expandedCard, setExpandedCard] = useState<number | null>(null);
 
@@ -150,7 +152,13 @@ export default function PricingSection() {
         }),
       }));
 
+
       setPricingData(updatedCategories);
+
+      // Fetch Fast Service price by ID
+      const fastServiceItem = data.find((i) => i._id === ITEM_IDS.FAST_SERVICE);
+      setFastServicePrice(fastServiceItem ? `N$${fastServiceItem.unit_price}` : null);
+
     } catch (err) {
       console.error(err);
     }finally{
@@ -222,6 +230,17 @@ export default function PricingSection() {
           );
         })}
       </div>
+
+      {/* Fast Service Banner */}
+{fastServicePrice && (
+  <div className="text-center py-2 sm:py-4 mt-4">
+    <p className="text-[#003262] font-bold text-lg sm:text-xl">
+      Fast Service: {fastServicePrice}
+    </p>
+  </div>
+)}
     </div>
+
+
   );
 }
