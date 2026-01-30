@@ -19,6 +19,9 @@ import type { AppDispatch } from "../redux/store";
 import { toast } from "sonner";
 import { MESSAGES } from "@/constants/messages";
 import { setIntent } from "../redux/intent/intentSlice";
+import { useAuth } from "@/hooks/useAuth";        
+import { useRequireIntent } from "@/hooks/useRequireIntent";  
+
 
 
 interface BackendItem {
@@ -39,6 +42,10 @@ interface Item {
 
 export default function OrderPage() {
 
+  useRequireIntent();
+
+  const { isAuthenticated, customer } = useAuth();
+
   const router = useRouter();
 
   const dispatch = useDispatch<AppDispatch>();
@@ -53,7 +60,6 @@ export default function OrderPage() {
   const [itemsCatalog, setItemsCatalog] = useState<Item[]>([]);
   const [selectedPrice, setSelectedPrice] = useState(0);
 
-  const isAuthenticated = useSelector(selectIsAuthenticated)
 
   const softenerFlavors = ["Lavender", "Fresh Linen", "Ocean Breeze", "No Preference"];
 
@@ -99,7 +105,7 @@ export default function OrderPage() {
         console.error(err);
         setItemsCatalog([]);
       } finally {
-        setLoadingItems(false); // done fetching
+        setLoadingItems(false); 
       }
     };
     fetchItems();
@@ -141,36 +147,70 @@ export default function OrderPage() {
 
 
   const handleSubmit = async () => {
+  
+  if (!isAuthenticated || !customer) {
+    dispatch(
+      setIntent({ action: "SUBMIT_ORDER", payload: orderItems })
+    );
+    toast.info(MESSAGES.LOGIN_REQUIRED_ORDER, { duration: 8000 });
+    router.push("/login");
+    return;
+  }
 
-    if (!isAuthenticated) {
-      dispatch(
-      setIntent({
-        action: "SUBMIT_ORDER",
-        payload: orderItems,
-    })
-  );
-  toast.info(MESSAGES.LOGIN_REQUIRED_ORDER, { duration: 8000 });
-  router.push("/login");
-  return;
-}
+  
+  if (orderItems.length === 0) {
+    toast.warning(MESSAGES.ORDER_ITEM_REQUIRED);
+    return;
+  }
 
-    //No items added
-    if (orderItems.length === 0) {
-      toast.warning(MESSAGES.ORDER_ITEM_REQUIRED);
-      return;
+  setLoading(true);
+
+  try {
+    
+    const payload = {
+      customer: customer._id, 
+      company: process.env.NEXT_PUBLIC_COMPANY_ID,
+      items: orderItems.map((item) => ({
+        serviceType: item.serviceType,
+        quantity: item.itemCount,
+        softenerFlavor: item.softenerFlavor || "",
+        specialInstructions: item.specialInstructions || "",
+        unitPrice: item.price,
+      })),
+      special_instructions: orderItems
+        .map((i) => i.specialInstructions)
+        .filter(Boolean)
+        .join("; "),
+      address: pickup.pickupAddress,
+    };
+
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}${process.env.NEXT_PUBLIC_API_CREATE_JOB_CARD}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || MESSAGES.ORDER_SUBMIT_FAILED);
     }
 
-    setLoading(true);
-    try {
-      await dispatch(submitOrder());
-      router.push("/my-orders");
-    } catch (err) {
-      console.error(MESSAGES.ORDER_SUBMIT_FAILED, err);
-      toast.error(MESSAGES.ORDER_SUBMIT_FAILED);
-    } finally {
-      setLoading(false);
-    }
-  };
+    
+    toast.success(MESSAGES.SUCCESSFUL_ORDER);
+    router.push("/my-orders"); 
+  } catch (err: any) {
+    console.error(err);
+    toast.error(err.message || MESSAGES.ORDER_SUBMIT_FAILED);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
 
   const totalAmount = orderItems.reduce(
     (sum, item) => sum + item.price * item.itemCount,
@@ -356,59 +396,66 @@ export default function OrderPage() {
           )}
 
           {/* STEP 3 — PICKUP */}
-          {step === 3 && (
-            <>
-              <Label className="text-base">Pickup Address</Label>
-              <Textarea
-                placeholder="Enter your address here"
-                value={pickup.pickupAddress}
-                onChange={(e) =>
-                  dispatch(setPickupDetails({ ...pickup, pickupAddress: e.target.value }))
-                }
-              />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 flex justify-center">
-                <div className="flex flex-col w-1/2">
-                  <Label className="text-md mb-1" htmlFor="pickupDate">
-                    Date
-                  </Label>
-                  <Input
-                    id="pickupDate"
-                    type="date"
-                    value={pickup.pickupDate}
-                    onChange={(e) =>
-                      dispatch(setPickupDetails({ ...pickup, pickupDate: e.target.value }))
-                    }
-                  />
-                </div>
+{step === 3 && (
+  <>
+    <Label className="text-base">Pickup Address</Label>
+    <Textarea
+      placeholder="Enter your address here"
+      value={pickup.pickupAddress}
+      onChange={(e) =>
+        dispatch(setPickupDetails({ ...pickup, pickupAddress: e.target.value }))
+      }
+    />
 
-                <div className="flex flex-col w-1/2">
-                  <Label className="text-md mb-1" htmlFor="pickupTime">
-                    Time
-                  </Label>
-                  <Input
-                    id="pickupTime"
-                    type="time"
-                    value={pickup.pickupTime}
-                    onChange={(e) =>
-                      dispatch(setPickupDetails({ ...pickup, pickupTime: e.target.value }))
-                    }
-                  />
-                </div>
-              </div>
-              <div className="flex justify-center gap-4 mt-6">
-                <Button className="w-1/2 sm:w-[180px] bg-[#408ac8] hover:bg-[#408ac8] text-white rounded-full" onClick={() => setStep(2)}>
-                  Back
-                </Button>
-                <Button
-                  className="w-1/2 sm:w-[180px] bg-[#003262] hover:bg-[#003262] text-white rounded-full"
-                  onClick={handleSubmit}
-                  disabled={loading}
-                >
-                  {loading ? "Submitting..." : "Submit Order"}
-                </Button>
-              </div>
-            </>
-          )}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 flex justify-center">
+      <div className="flex flex-col w-1/2">
+        <Label className="text-md mb-1" htmlFor="pickupDate">
+          Date
+        </Label>
+        <Input
+          id="pickupDate"
+          type="date"
+          value={pickup.pickupDate}
+          onChange={(e) =>
+            dispatch(setPickupDetails({ ...pickup, pickupDate: e.target.value }))
+          }
+        />
+      </div>
+
+      <div className="flex flex-col w-1/2">
+        <Label className="text-md mb-1" htmlFor="pickupTime">
+          Time
+        </Label>
+        <Input
+          id="pickupTime"
+          type="time"
+          value={pickup.pickupTime}
+          onChange={(e) =>
+            dispatch(setPickupDetails({ ...pickup, pickupTime: e.target.value }))
+          }
+        />
+      </div>
+    </div>
+
+    <div className="flex justify-center gap-4 mt-6">
+      <Button
+        className="w-1/2 sm:w-[180px] bg-[#408ac8] hover:bg-[#408ac8] text-white rounded-full"
+        onClick={() => setStep(2)}
+      >
+        Back
+      </Button>
+
+      <Button
+        className="w-1/2 sm:w-[180px] bg-[#003262] hover:bg-[#003262] text-white rounded-full"
+        onClick={handleSubmit} // <-- directly calls the new handleSubmit
+        disabled={loading}
+      >
+        {loading ? "Submitting..." : "Submit Order"}
+      </Button>
+    </div>
+  </>
+)}
+
         </Card>
       </div>
     </div>
