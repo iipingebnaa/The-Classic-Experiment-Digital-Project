@@ -46,6 +46,14 @@ export const metadata: Metadata = {
     siteName: "Classic Clean Laundry",
     locale: "en-NA",
     type: "website",
+    images: [
+    {
+      url: "https://scc-laundry.com/assets/ccl.logo.png",
+      width: 1200,
+      height: 630,
+      alt: "Classic Clean Laundry",
+    },
+  ],
   },
   other: {
     facebook: "https://facebook.com/classiccleanlaundry",
