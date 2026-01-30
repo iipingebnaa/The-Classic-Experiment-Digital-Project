@@ -19,6 +19,7 @@ export const MESSAGES = {
     FAILED_REQUEST : "Request failed",
 
     //ORDERS
+    SUCCESSFUL_ORDER: "Order successfully placed!",
     LOGIN_REQUIRED_ORDER :  "Please log in to complete your order",
     ORDER_ITEM_REQUIRED : "Please add at least one item",
     ORDER_SUBMIT_FAILED : "Failed to submit order",
